@@ -1,0 +1,9 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET     /driver                          controllers.HomeController.driver
+GET     /rider                           controllers.HomeController.rider
+GET     /driver-ws                       controllers.HomeController.driverWs
+GET     /rider-ws                        controllers.HomeController.riderWs
+GET     /assets/*file                    controllers.Assets.versioned(path="/public", file)

@@ -1,0 +1,18 @@
+# Cassandra storage config YAML
+cluster_name: 'Koober'
+
+commitlog_sync: periodic
+commitlog_sync_period_in_ms: 10000
+
+partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+
+endpoint_snitch: SimpleSnitch
+
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "127.0.0.1"
+
+listen_address: localhost
+
+start_native_transport: true

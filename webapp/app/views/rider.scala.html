@@ -1,0 +1,148 @@
+@(wsUrl: String, mapboxAccessToken: String)
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Rider</title>
+
+        <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
+        <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.js"></script>
+        <script src="@routes.Assets.versioned("lib/vue/vue.js")"></script>
+
+        <link href="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css" rel="stylesheet"/>
+        <link href="@routes.Assets.versioned("lib/ionicons/css/ionicons.min.css")" rel="stylesheet"/>
+        <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.css" rel="stylesheet" type="text/css" />
+
+        <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            height: 30px;
+            text-align: center;
+            padding-top: 10px;
+        }
+
+        #map {
+            height: auto;
+            width: 100%;
+            position: absolute;
+            top: 40px;
+            bottom: 0;
+        }
+
+        .marker {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .mapboxgl-ctrl-directions {
+            display: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            Your Rider ID: {{ uuid }}
+        </div>
+
+        <div id="map"></div>
+
+        <script>
+                function guid() {
+                    function s4() {
+                        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+                    }
+                    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+                }
+
+                var marker = null;
+
+                mapboxgl.accessToken = '@mapboxAccessToken';
+
+                var map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v9',
+                    zoom: 14
+                });
+
+                var directions = new MapboxDirections({
+                    accessToken: mapboxgl.accessToken,
+                    interactive: false,
+                    profile: 'driving',
+                    controls: {
+                        inputs: false,
+                        instructions: false
+                    }
+                });
+
+                map.addControl(directions);
+
+                map.on('click', function(e) {
+                    if (driver == null) {
+                        if (marker == null) {
+                            var el = document.createElement('i');
+                            el.className = 'marker icon ion-ios-body';
+                            marker = new mapboxgl.Marker(el, {offset: [-12, -24]}).setLngLat(e.lngLat).addTo(map);
+                        }
+                        else {
+                            marker.setLngLat(e.lngLat);
+                        }
+                    }
+                });
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    map.setCenter([position.coords.longitude, position.coords.latitude]);
+                });
+
+                var uuid = guid();
+
+                var app = new Vue({
+                    el: '#app',
+                    data: {
+                        uuid: uuid
+                    }
+                });
+
+                var driverMarkers = {};
+
+                var status = 'available';
+                var driver = null;
+
+                var ws = new WebSocket("@wsUrl");
+                ws.onmessage = function(event) {
+                    var data = JSON.parse(event.data);
+
+                    if ((data.rider == uuid) && (status != 'pickup') && (data.lngLat != null)) {
+                        status = 'pickup';
+                        driver = data.driver;
+
+                        directions.setOrigin([data.lngLat.lng, data.lngLat.lat]);
+                        directions.setDestination(marker.getLngLat().toArray());
+
+                        // todo: hide other drivers
+                    }
+
+                    if (driverMarkers[data.driver] == null) {
+                        var el = document.createElement('i');
+                        el.className = 'marker icon ion-android-car';
+                        driverMarkers[data.driver] =  new mapboxgl.Marker(el, {offset: [-12, -24]}).setLngLat(data.lngLat).addTo(map);
+                    }
+                    else {
+                        if (data.lngLat != null) {
+                            driverMarkers[data.driver].setLngLat([data.lngLat.lng, data.lngLat.lat]);
+                        }
+                    }
+                };
+
+                window.setInterval(function() {
+                    if ((marker != null) && (ws.readyState == 1)) {
+                        ws.send(JSON.stringify({rider: uuid, lngLat: marker.getLngLat(), status: status, driver: driver}));
+                    }
+                }, 500);
+        </script>
+    </body>
+</html>

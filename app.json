@@ -1,0 +1,20 @@
+{
+  "name": "hello-play-kafka",
+  "keywords": [
+    "play-framework",
+    "kafka"
+  ],
+  "env": {
+    "CRYPTO_SECRET": {
+      "generator": "secret"
+    }
+  },
+  "formation": {
+    "randomnumbers": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "heroku-kafka"
+  ]
+}
