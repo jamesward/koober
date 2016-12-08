@@ -1,17 +1,17 @@
 {
-  "name": "hello-play-kafka",
+  "name": "koober",
   "keywords": [
     "play-framework",
-    "kafka"
+    "scala",
+    "akka-streams",
+    "kafka",
+    "cassandra",
+    "flink",
+    "spark-streaming"
   ],
   "env": {
     "CRYPTO_SECRET": {
       "generator": "secret"
-    }
-  },
-  "formation": {
-    "randomnumbers": {
-      "quantity": 1
     }
   },
   "addons": [
