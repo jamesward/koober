@@ -1,3 +1,1 @@
-libraryDependencies ++= Seq(
-  "org.apache.cassandra" % "cassandra-all" % "3.9"
-)
+libraryDependencies += "org.apache.cassandra" % "cassandra-all" % "3.9"
