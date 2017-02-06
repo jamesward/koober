@@ -25,7 +25,7 @@ class HomeController @Inject() (kafka: Kafka, configuration: Configuration) exte
 
   // sink is incoming driver messages
   // source is outgoing rider messages
-  def driverWs = WebSocket.accept { request =>
+  def driverWs = WebSocket.accept { _ =>
     val sink = kafka.sink.contramap[JsValue](new ProducerRecord("driver", "", _))
     val source = kafka.source("rider").map(_.value())
     Flow.fromSinkAndSource(sink, source)
@@ -33,7 +33,7 @@ class HomeController @Inject() (kafka: Kafka, configuration: Configuration) exte
 
   // sink is incoming rider messages
   // source is outgoing driver messages
-  def riderWs = WebSocket.accept { request =>
+  def riderWs = WebSocket.accept { _ =>
     val sink = kafka.sink.contramap[JsValue](new ProducerRecord("rider", "", _))
     val source = kafka.source("driver").map(_.value())
     Flow.fromSinkAndSource(sink, source)
