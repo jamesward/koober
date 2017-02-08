@@ -33,3 +33,7 @@ Start the Spark Streaming process:
 
 1. `./sbt kafkaToCassandra/run`
 1. Watch all of the ride data be micro-batched from Kafka to Cassandra
+
+Copy Demo Data into the Pipeline:
+
+    ./sbt demoData/run
