@@ -16,4 +16,6 @@ lazy val flinkClient = (project in file("flink-client")).settings(commonSettings
 
 lazy val kafkaToCassandra = (project in file("kafka-to-cassandra")).settings(commonSettings: _*).dependsOn(kafkaCommon)
 
+lazy val pioClient = (project in file("pio-client")).settings(commonSettings: _*).dependsOn(kafkaCommon)
+
 lazy val demoData = (project in file("demo-data")).settings(commonSettings: _*).dependsOn(kafkaCommon)
