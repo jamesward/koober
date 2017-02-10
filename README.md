@@ -34,6 +34,17 @@ Start the Spark Streaming process:
 1. `./sbt kafkaToCassandra/run`
 1. Watch all of the ride data be micro-batched from Kafka to Cassandra
 
+Setup PredictionIO Pipeline:
+
+1. Setup PIO
+1. Set the PIO Access Key:
+
+        export PIO_ACCESS_KEY=<YOUR PIO ACCESS KEY>
+
+1. Start the PIO Pipeline:
+
+        ./sbt pioClient/run
+
 Copy Demo Data into the Pipeline:
 
     ./sbt demoData/run
