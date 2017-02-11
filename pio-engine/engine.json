@@ -1,0 +1,22 @@
+{
+  "id": "default",
+  "description": "Default settings",
+  "engineFactory": "detrevid.predictionio.loadforecasting.ForecastingEngine",
+  "datasource": {
+    "params": {
+      "appName": "EnergyForecaster"
+    }
+  },
+  "algorithms": [
+    {
+      "name": "alg",
+      "params": {
+        "iterations": 4096,
+        "miniBatchFraction" : 1.0,
+        "regParam" : 0.0,
+        "stepSize": 0.9
+      }
+    }
+  ]
+}
+
