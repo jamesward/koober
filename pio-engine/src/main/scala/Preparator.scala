@@ -12,10 +12,11 @@ import java.util.{Calendar, TimeZone}
 
 import org.joda.time.DateTime
 
-class PreparedData (
-                     val eventTimes: Array[DateTime],
-                     val data: RDD[(DateTime, LabeledPoint)]
-                   ) extends Serializable with SanityCheck {
+class PreparedData(
+    val eventTimes: Array[DateTime],
+    val data: RDD[(DateTime, LabeledPoint)]
+) extends Serializable
+    with SanityCheck {
 
   override def sanityCheck(): Unit = {
     require(data.take(1).nonEmpty, s"data cannot be empty!")
@@ -27,15 +28,17 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
   @transient lazy val logger = Logger[this.type]
 
   def prepare(sc: SparkContext, trainingData: TrainingData): PreparedData = {
-    val eventTimes = trainingData.data map { _.eventTime } distinct() collect()
+    val eventTimes = trainingData.data map { _.eventTime } distinct () collect ()
 
-    val countMap = trainingData.data map{
-      ev => (ev.eventTime, 1)
-    } reduceByKey(_+_) 
+    val countMap = trainingData.data map { ev =>
+      (ev.eventTime, 1)
+    } reduceByKey (_ + _)
 
-    val data = countMap.keys map {
-      eventTime => (eventTime, LabeledPoint(Row.fromSeq(countMap.lookup(eventTime)).getInt(0).toDouble, Preparator.toFeaturesVector(eventTime)))
-    } cache()
+    val data = countMap.keys map { eventTime =>
+      (eventTime,
+       LabeledPoint(Row.fromSeq(countMap.lookup(eventTime)).getInt(0).toDouble,
+                    Preparator.toFeaturesVector(eventTime)))
+    } cache ()
 
     new PreparedData(eventTimes, data)
   }
@@ -46,7 +49,12 @@ object Preparator {
   @transient lazy val logger = Logger[this.type]
 
   def toFeaturesVector(eventTime: DateTime): Vector = {
-    Vectors.dense(eventTime.getMillis)  //will be changed when Preparator is properly implemented
+    Vectors.dense(
+      Array(
+        eventTime.dayOfWeek().get().toDouble,
+        eventTime.dayOfMonth().get().toDouble,
+        eventTime.minuteOfDay().get().toDouble,
+        eventTime.monthOfYear().get().toDouble
+      )) //will be changed when Preparator is properly implemented
   }
 }
-
