@@ -11,9 +11,9 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
 case class DataSourceParams(
-  appName: String,
-  evalK: Option[Int]
-) extends Params
+                             appName: String,
+                             evalK: Option[Int]
+                           ) extends Params
 
 class UserEvent(
   val eventTime:  Long,
@@ -77,7 +77,7 @@ class DataSource(val dsp: DataSourceParams)
         testingPoints.map {
           p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(p.demand))
         }
-        )
+      )
     }
   }
 }
@@ -85,6 +85,7 @@ class DataSource(val dsp: DataSourceParams)
 class TrainingData(
   val data: RDD[UserEvent]
 ) extends Serializable with SanityCheck {
+
 
   override def sanityCheck(): Unit = {
     require(data.take(1).nonEmpty, s"data cannot be empty!")

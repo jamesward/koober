@@ -22,7 +22,7 @@ case class RMSEMetric()
   }
 
   def calculate(query: Query, predicted: PredictedResult, actual: ActualResult): Double =
-    pow(predicted.label - actual.label, 2)
+    pow(predicted.demand - actual.demand, 2)
 
   override
   def compare(r0: Double, r1: Double): scala.Int = {
