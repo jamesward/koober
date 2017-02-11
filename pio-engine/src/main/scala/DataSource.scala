@@ -1,10 +1,10 @@
 package detrevid.predictionio.loadforecasting
 
-import io.prediction.controller.PDataSource
-import io.prediction.controller.EmptyEvaluationInfo
-import io.prediction.controller.Params
-import io.prediction.controller.SanityCheck
-import io.prediction.data.store.PEventStore
+import org.apache.predictionio.controller.PDataSource
+import org.apache.predictionio.controller.EmptyEvaluationInfo
+import org.apache.predictionio.controller.Params
+import org.apache.predictionio.controller.SanityCheck
+import org.apache.predictionio.data.store.PEventStore
 
 import grizzled.slf4j.Logger
 import org.apache.spark.SparkContext
@@ -15,31 +15,31 @@ case class DataSourceParams(
   evalK: Option[Int]
 ) extends Params
 
-class ConsumptionEvent(
-  val circuitId:         Int,
-  val timestamp:          Long,
-  val energyConsumption: Double
+class UserEvent(
+  val eventTime:  Long,
+  val lat:        Double,
+  val lng:        Double
 ) extends Serializable
 
 class DataSource(val dsp: DataSourceParams)
   extends PDataSource[TrainingData, EmptyEvaluationInfo, Query, ActualResult] {
 
-  type ConsumptionEvents = RDD[ConsumptionEvent]
+  type UserEvents = RDD[UserEvent]
 
   @transient lazy val logger = Logger[this.type]
 
-  def readData(sc: SparkContext): ConsumptionEvents = {
+  def readData(sc: SparkContext): UserEvents = {
     PEventStore.aggregateProperties(
       appName = dsp.appName,
-      entityType = "energy_consumption",
+      entityType = "location",
       // only keep entities with these required properties
-      required = Some(List("circuit_id", "timestamp", "energy_consumption")))(sc)
+      required = Some(List("eventTime", "lat", "lng")))(sc)
       .map { case (entityId, properties) =>
       try {
-        new ConsumptionEvent(
-          circuitId=properties.get[Int]("circuit_id"),
-          timestamp=properties.get[Long]("timestamp"),
-          energyConsumption=properties.get[Double]("energy_consumption")
+        new UserEvent(
+          eventTime=eventTime,
+          lat=properties.get[Double]("lat"),
+          lng=properties.get[Double]("lng")
         )
       } catch {
         case e: Exception =>
@@ -52,7 +52,7 @@ class DataSource(val dsp: DataSourceParams)
 
   override
   def readTraining(sc: SparkContext): TrainingData = {
-    val data: ConsumptionEvents = readData(sc)
+    val data: UserEvents = readData(sc)
     new TrainingData(data)
   }
 
@@ -61,11 +61,11 @@ class DataSource(val dsp: DataSourceParams)
   : Seq[(TrainingData, EmptyEvaluationInfo, RDD[(Query, ActualResult)])] = {
     require(dsp.evalK.nonEmpty, "DataSourceParams.evalK must not be None")
 
-    val data: ConsumptionEvents = readData(sc)
+    val data: UserEvents = readData(sc)
 
     // K-fold splitting
     val evalK = dsp.evalK.get
-    val indexedPoints: RDD[(ConsumptionEvent, Long)] = data.zipWithIndex()
+    val indexedPoints: RDD[(UserEvent, Long)] = data.zipWithIndex()
 
     (0 until evalK).map { idx =>
       val trainingPoints = indexedPoints.filter(_._2 % evalK != idx).map(_._1)
@@ -75,7 +75,7 @@ class DataSource(val dsp: DataSourceParams)
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.circuitId, p.timestamp), new ActualResult(p.energyConsumption))
+          p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(p.demand))
         }
         )
     }
@@ -83,11 +83,10 @@ class DataSource(val dsp: DataSourceParams)
 }
 
 class TrainingData(
-  val data: RDD[ConsumptionEvent]
+  val data: RDD[UserEvent]
 ) extends Serializable with SanityCheck {
 
   override def sanityCheck(): Unit = {
     require(data.take(1).nonEmpty, s"data cannot be empty!")
   }
 }
-
