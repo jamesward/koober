@@ -28,10 +28,10 @@ class Algorithm(val ap: AlgorithmParams)
       .setMiniBatchFraction(ap.miniBatchFraction)
       .setStepSize(ap.stepSize)
 
-    val mod: Map[Int, LinearRegressionModel] = (data.circuitsIds map {
-      cid =>
-        val circuitData = data.data filter {_._1 == cid} map {_._2} cache()
-        (cid, lin.run(circuitData))
+    val mod: Map[Long, LinearRegressionModel] = (data.eventTimes map {
+      eventTime =>
+        val eventData = data.data filter {_._1 == eventTime} map {_._2} cache()
+        (eventTime, lin.run(eventData))
     }).toMap
 
     new Model(mod)
@@ -43,13 +43,13 @@ class Algorithm(val ap: AlgorithmParams)
   }
 }
 
-class Model(val mod: Map[Int, LinearRegressionModel]) extends Serializable {
+class Model(val mod: Map[Long, LinearRegressionModel]) extends Serializable {
 
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
-    val features = Preparator.toFeaturesVector(query.circuitId, query.timestamp)
-    mod(query.circuitId).predict(features)
+    val features = Preparator.toFeaturesVector(query.eventTime)
+    mod(query.eventTime).predict(features)
   }
 }
 
