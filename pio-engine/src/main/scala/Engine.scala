@@ -1,19 +1,20 @@
 package detrevid.predictionio.loadforecasting
 
-import io.prediction.controller.{Engine, EngineFactory}
+import org.apache.predictionio.controller.{Engine, EngineFactory}
 
 class Query(
-  val circuitId: Int,
-  val timestamp: Long
-) extends Serializable
+             val eventTime: Long,
+             val lng: Double,
+             val lat: Double
+           ) extends Serializable
 
 class PredictedResult(
-  val label: Double
-) extends Serializable
+                       val demand: Double
+                     ) extends Serializable
 
 class ActualResult(
-  val label: Double
-) extends Serializable
+                    val demand: Double
+                  ) extends Serializable
 
 object ForecastingEngine extends EngineFactory {
   def apply() = {

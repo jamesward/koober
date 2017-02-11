@@ -1,0 +1,9 @@
+2017-02-11 13:38:09,804 INFO  org.apache.predictionio.tools.console.App$ [main] - Initialized Event Store for this app ID: 3.
+2017-02-11 13:38:09,863 INFO  org.apache.predictionio.tools.console.App$ [main] - Created new app:
+2017-02-11 13:38:09,864 INFO  org.apache.predictionio.tools.console.App$ [main] -       Name: koober
+2017-02-11 13:38:09,864 INFO  org.apache.predictionio.tools.console.App$ [main] -         ID: 3
+2017-02-11 13:38:09,865 INFO  org.apache.predictionio.tools.console.App$ [main] - Access Key: ZvmQNTW5jiQqRFrcq5sgfHenOULDccyG5jyDRNFSOitB2BAObm-VRAPrYXuyWLQb
+2017-02-11 13:38:14,200 INFO  org.apache.predictionio.tools.console.App$ [main] -                 Name |   ID |                                                       Access Key | Allowed Event(s)
+2017-02-11 13:38:14,207 INFO  org.apache.predictionio.tools.console.App$ [main] -     EnergyForecaster |    2 | kXaqntx1yVpMmHWdIoSsqMblMfBQf8gTDze1MhqT_wNpFCgi0fMois-Xg9k_1cd0 | (all)
+2017-02-11 13:38:14,208 INFO  org.apache.predictionio.tools.console.App$ [main] -               koober |    3 | ZvmQNTW5jiQqRFrcq5sgfHenOULDccyG5jyDRNFSOitB2BAObm-VRAPrYXuyWLQb | (all)
+2017-02-11 13:38:14,209 INFO  org.apache.predictionio.tools.console.App$ [main] - Finished listing 2 app(s).

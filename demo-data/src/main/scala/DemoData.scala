@@ -60,14 +60,15 @@ object DemoData extends App {
       val lat = parts(12).toDouble
       val lng = parts(13).toDouble
       val datetime = dateTimeFormatter.parseDateTime(parts(19))
-
+      val dateTimeLongFormatter = DateTimeFormat.longTime()
+      val dateTimeLong = dateTimeLongFormatter.print(datetime)
       Json.obj(
         "lngLat" -> Json.obj(
           "lat" -> lat,
           "lng" -> lng
         ),
         "status" -> "pickup",
-        "datetime" -> datetime
+        "datetime" -> dateTimeLong
       )
     }
 
