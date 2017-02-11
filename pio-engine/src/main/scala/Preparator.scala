@@ -2,19 +2,19 @@ package edu.cs5152.predictionio.demandforecasting
 
 import org.apache.predictionio.controller.PPreparator
 import org.apache.predictionio.controller.SanityCheck
-
 import grizzled.slf4j.Logger
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
-
 import java.util.{Calendar, TimeZone}
 
+import org.joda.time.DateTime
+
 class PreparedData (
-                     val eventTimes: Array[Long],
-                     val data: RDD[(Long, LabeledPoint)]
+                     val eventTimes: Array[DateTime],
+                     val data: RDD[(DateTime, LabeledPoint)]
                    ) extends Serializable with SanityCheck {
 
   override def sanityCheck(): Unit = {
@@ -45,8 +45,8 @@ object Preparator {
 
   @transient lazy val logger = Logger[this.type]
 
-  def toFeaturesVector(eventTime: Long): Vector = {
-    Vectors.dense(eventTime)
+  def toFeaturesVector(eventTime: DateTime): Vector = {
+    Vectors.dense(eventTime.getMillis)  //will be changed when Preparator is properly implemented
   }
 }
 

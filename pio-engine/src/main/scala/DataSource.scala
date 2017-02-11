@@ -5,10 +5,10 @@ import org.apache.predictionio.controller.EmptyEvaluationInfo
 import org.apache.predictionio.controller.Params
 import org.apache.predictionio.controller.SanityCheck
 import org.apache.predictionio.data.store.PEventStore
-
 import grizzled.slf4j.Logger
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.joda.time.DateTime
 
 case class DataSourceParams(
                              appName: String,
@@ -16,7 +16,7 @@ case class DataSourceParams(
                            ) extends Params
 
 class UserEvent(
-  val eventTime:  Long,
+  val eventTime:  DateTime,
   val lat:        Double,
   val lng:        Double
 ) extends Serializable
@@ -29,25 +29,25 @@ class DataSource(val dsp: DataSourceParams)
   @transient lazy val logger = Logger[this.type]
 
   def readData(sc: SparkContext): UserEvents = {
-    PEventStore.aggregateProperties(
+    PEventStore.find(
       appName = dsp.appName,
-      entityType = "location",
-      // only keep entities with these required properties
-      required = Some(List("eventTime", "lat", "lng")))(sc)
-      .map { case (entityId, properties) =>
+      entityType = Some("location"),
+      targetEntityType = Some(Some("item")))(sc)
+      .map { event =>
       try {
         new UserEvent(
-          eventTime=eventTime,
-          lat=properties.get[Double]("lat"),
-          lng=properties.get[Double]("lng")
+          eventTime  =event.properties.get[DateTime]("eventTime"),
+          lat = event.properties.get[Double]("lat"),
+          lng = event.properties.get[Double]("lng")
         )
       } catch {
         case e: Exception =>
-          logger.error(s"Failed to get properties $properties of" +
-            s" $entityId. Exception: $e.")
+          logger.error(s"Failed to get properties $event.properties of" +
+            s" $event.entityId. Exception: $e.")
           throw e
       }
-    }.cache()
+    }
+      .cache()
   }
 
   override
@@ -75,7 +75,7 @@ class DataSource(val dsp: DataSourceParams)
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(p.demand))
+          p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(1))
         }
       )
     }

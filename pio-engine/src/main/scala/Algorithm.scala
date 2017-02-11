@@ -2,10 +2,10 @@ package edu.cs5152.predictionio.demandforecasting
 
 import org.apache.predictionio.controller.P2LAlgorithm
 import org.apache.predictionio.controller.Params
-
 import grizzled.slf4j.Logger
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
+import org.joda.time.DateTime
 
 case class AlgorithmParams(
   iterations:        Int    = 10000,
@@ -28,7 +28,7 @@ class Algorithm(val ap: AlgorithmParams)
       .setMiniBatchFraction(ap.miniBatchFraction)
       .setStepSize(ap.stepSize)
 
-    val mod: Map[Long, LinearRegressionModel] = (data.eventTimes map {
+    val mod: Map[DateTime, LinearRegressionModel] = (data.eventTimes map {
       eventTime =>
         val eventData = data.data filter {_._1 == eventTime} map {_._2} cache()
         (eventTime, lin.run(eventData))
@@ -43,8 +43,8 @@ class Algorithm(val ap: AlgorithmParams)
   }
 }
 
-class Model(val mod: Map[Long, LinearRegressionModel]) extends Serializable {
-
+class Model(val mod: Map[DateTime, LinearRegressionModel]) extends Serializable { // will not be DateTime after changes
+                                                                                  // to Preparator
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
