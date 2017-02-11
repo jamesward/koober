@@ -1,0 +1,6 @@
+.idea/
+manifest.json
+pio.log
+pio.sbt
+project/project/
+project/target/
