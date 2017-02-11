@@ -1,4 +1,4 @@
-package detrevid.predictionio.loadforecasting
+package edu.cs5152.predictionio.demandforecasting
 
 import org.apache.predictionio.controller.P2LAlgorithm
 import org.apache.predictionio.controller.Params

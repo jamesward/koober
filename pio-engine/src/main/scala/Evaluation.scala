@@ -1,4 +1,4 @@
-package detrevid.predictionio.loadforecasting
+package edu.cs5152.predictionio.demandforecasting
 
 import org.apache.predictionio.controller.AverageMetric
 import org.apache.predictionio.controller.EmptyEvaluationInfo
