@@ -37,7 +37,7 @@ object RMSEEvaluation extends Evaluation {
 object EngineParamsList extends EngineParamsGenerator {
 
   private[this] val baseEP = EngineParams(
-    dataSourceParams = DataSourceParams(appName = "EnergyForecaster", evalK = Some(5)))
+    dataSourceParams = DataSourceParams(appName = "koober", evalK = Some(5)))
 
   engineParamsList = Seq(
     baseEP.copy(

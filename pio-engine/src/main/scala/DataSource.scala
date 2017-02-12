@@ -31,12 +31,11 @@ class DataSource(val dsp: DataSourceParams)
   def readData(sc: SparkContext): UserEvents = {
     PEventStore.find(
       appName = dsp.appName,
-      entityType = Some("location"),
-      targetEntityType = Some(Some("item")))(sc)
+      entityType = Some("location"))(sc)
       .map { event =>
       try {
         new UserEvent(
-          eventTime  =event.properties.get[DateTime]("eventTime"),
+          eventTime = event.eventTime,
           lat = event.properties.get[Double]("lat"),
           lng = event.properties.get[Double]("lng")
         )
