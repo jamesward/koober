@@ -31,7 +31,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val eventTimes = trainingData.data map { _.eventTime } distinct () collect ()
 
     val timeMap = trainingData.data map { ev =>
-      (ev.eventTime, normalize(ev.eventTime, "minuteOfYear"))}
+      (ev.eventTime, normalize(ev.eventTime, "minute"))}  //CHANGE THIS to change the granularity of how to group demands
 
     val countMap = timeMap.values map (
       (normalizedTime) => (normalizedTime, 1)
@@ -49,32 +49,16 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     * Based on different metrics, try to normalize the event time into a double so we can calculate demand
     * @param eventTime
     * @param metric
-    *               hourOfYear      - granularity at the hour   level in each year
-    *               halfHourOfYear  - ...................30 min ..................
-    *               minuteOfYear    - ...................minute ..................
-    *               hourOfMonth     - granularity at the hour   level in each month
-    *               halfHourOfMonth - ...................30 min ..................
-    *               minuteOfMonth   - ...................minute ..................
-    *               hourOfWeek      - granularity at the hour   level in each week
-    *               halfHourOfWeek  - ...................30 min ..................
-    *               minuteOfWeek    - ...................minute ..................
+    *        Supports: minute, fiveMinutes, halfHour, hour
     * @return
     */
-  def normalize(eventTime: DateTime, metric: String): Int ={
-    val minuteOfMonth   = (_:Any) => eventTime.dayOfMonth().get()*24*60 + eventTime.hourOfDay().get()*60 + eventTime.minuteOfDay().get()
-    val halfHourOfMonth = (_:Any) => eventTime.dayOfMonth().get()*24*2 + eventTime.hourOfDay().get()*2 + eventTime.minuteOfDay().get()/30
-    val hourOfMonth     = (_:Any) => eventTime.dayOfMonth().get()*24 + eventTime.hourOfDay().get()
+  def normalize(eventTime: DateTime, metric: String): Long ={
     metric match{
-      case "hourOfYear"     => eventTime.monthOfYear().get()*31*24 + hourOfMonth(Nil)
-      case "halfHourOfYear" => eventTime.monthOfYear().get()*31*24*2 + halfHourOfMonth(Nil)
-      case "minuteOfYear"   => eventTime.monthOfYear().get()*31*24*60 + minuteOfMonth(Nil)
-      case "hourOfMonth"    => hourOfMonth(Nil)
-      case "halfHourOfYear" => halfHourOfMonth(Nil)
-      case "minuteOfMonth"  => minuteOfMonth(Nil)
-      case "hourOfWeek"     => eventTime.dayOfWeek().get()*7*24 + eventTime.hourOfDay().get()
-      case "halfHourOfWeek" => eventTime.dayOfWeek().get()*7*24*2 + eventTime.hourOfDay().get()*2 + eventTime.minuteOfDay().get()/30
-      case "minuteOfWeek"   => eventTime.dayOfWeek().get()*7*24*60 + eventTime.hourOfDay().get()*60 + eventTime.minuteOfDay().get()
-
+      case "minute"         => eventTime.getMillis()/(1000*60)
+      case "fiveMinutes"    => eventTime.getMillis()/(1000*60*5)
+      case "halfHour"       => eventTime.getMillis()/(1000*60*30)
+      case "hour"           => eventTime.getMillis()/(1000*60*60)
+      case _                => throw new NotImplementedError("This normalization method is not implemented")
     }
   }
 }
