@@ -33,13 +33,12 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val timeMap = trainingData.data map { ev =>
       (ev.eventTime, normalize(ev.eventTime, "minuteOfYear"))}
 
-    val countMap = timeMap.keys map { eventTime =>
-      (timeMap.lookup(eventTime), 1)
-    } countByKey()
+    val countMap = timeMap.values map (
+      (normalizedTime) => (normalizedTime, 1)
+    ) countByKey()
 
     val data = timeMap map { timeMapEntry =>
-      LabeledPoint(countMap.filterKeys(e => (e == timeMapEntry._1)).get(timeMap.lookup(timeMapEntry._1)).get,
-        Preparator.toFeaturesVector(timeMapEntry._1))
+      LabeledPoint(countMap.get(timeMapEntry._2).get, Preparator.toFeaturesVector(timeMapEntry._1))
     } cache ()
 
 
