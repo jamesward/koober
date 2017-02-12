@@ -13,10 +13,10 @@ import java.util.{Calendar, TimeZone}
 import org.joda.time.DateTime
 
 class PreparedData(
-    val eventTimes: Array[DateTime],
-    val data: RDD[(DateTime, LabeledPoint)]
+    val data: RDD[LabeledPoint]
 ) extends Serializable
     with SanityCheck {
+
 
   override def sanityCheck(): Unit = {
     require(data.take(1).nonEmpty, s"data cannot be empty!")
@@ -30,17 +30,52 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
   def prepare(sc: SparkContext, trainingData: TrainingData): PreparedData = {
     val eventTimes = trainingData.data map { _.eventTime } distinct () collect ()
 
-    val countMap = trainingData.data map { ev =>
-      (ev.eventTime, 1)
+    val timeMap = trainingData.data map { ev =>
+      (ev.eventTime, normalize(ev.eventTime, "minuteOfYear"))}
+
+    val countMap = timeMap.keys map { eventTime =>
+      (timeMap.lookup(eventTime), 1)
     } reduceByKey (_ + _)
 
-    val data = countMap.keys map { eventTime =>
-      (eventTime,
-       LabeledPoint(Row.fromSeq(countMap.lookup(eventTime)).getInt(0).toDouble,
-                    Preparator.toFeaturesVector(eventTime)))
+    val data = trainingData.data map { ev =>
+      LabeledPoint(Row.fromSeq(countMap.lookup(timeMap.lookup(ev.eventTime))).getInt(0).toDouble, //This long and complicated line basically just get the demand out of the countMap
+        Preparator.toFeaturesVector(ev.eventTime))
     } cache ()
 
-    new PreparedData(eventTimes, data)
+    new PreparedData(data)
+  }
+
+  /**
+    * Based on different metrics, try to normalize the event time into a double so we can calculate demand
+    * @param eventTime
+    * @param metric
+    *               hourOfYear      - granularity at the hour   level in each year
+    *               halfHourOfYear  - ...................30 min ..................
+    *               minuteOfYear    - ...................minute ..................
+    *               hourOfMonth     - granularity at the hour   level in each month
+    *               halfHourOfMonth - ...................30 min ..................
+    *               minuteOfMonth   - ...................minute ..................
+    *               hourOfWeek      - granularity at the hour   level in each week
+    *               halfHourOfWeek  - ...................30 min ..................
+    *               minuteOfWeek    - ...................minute ..................
+    * @return
+    */
+  def normalize(eventTime: DateTime, metric: String): Int ={
+    val minuteOfMonth   = (_:Any) => eventTime.dayOfMonth().get()*24*60 + eventTime.hourOfDay().get()*60 + eventTime.minuteOfDay().get()
+    val halfHourOfMonth = (_:Any) => eventTime.dayOfMonth().get()*24*2 + eventTime.hourOfDay().get()*2 + eventTime.minuteOfDay().get()/30
+    val hourOfMonth     = (_:Any) => eventTime.dayOfMonth().get()*24 + eventTime.hourOfDay().get()
+    metric match{
+      case "hourOfYear"     => eventTime.monthOfYear().get()*31*24 + hourOfMonth(Nil)
+      case "halfHourOfYear" => eventTime.monthOfYear().get()*31*24*2 + halfHourOfMonth(Nil)
+      case "minuteOfYear"   => eventTime.monthOfYear().get()*31*24*60 + minuteOfMonth(Nil)
+      case "hourOfMonth"    => hourOfMonth(Nil)
+      case "halfHourOfYear" => halfHourOfMonth(Nil)
+      case "minuteOfMonth"  => minuteOfMonth(Nil)
+      case "hourOfWeek"     => eventTime.dayOfWeek().get()*7*24 + eventTime.hourOfDay().get()
+      case "halfHourOfWeek" => eventTime.dayOfWeek().get()*7*24*2 + eventTime.hourOfDay().get()*2 + eventTime.minuteOfDay().get()/30
+      case "minuteOfWeek"   => eventTime.dayOfWeek().get()*7*24*60 + eventTime.hourOfDay().get()*60 + eventTime.minuteOfDay().get()
+
+    }
   }
 }
 
