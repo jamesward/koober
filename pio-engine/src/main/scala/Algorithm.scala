@@ -1,7 +1,7 @@
 package edu.cs5152.predictionio.demandforecasting
 
 import grizzled.slf4j.Logger
-import org.apache.predictionio.controller.{P2LAlgorithm, Params}
+import org.apache.predictionio.controller.{CustomQuerySerializer, P2LAlgorithm, Params}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
 import org.joda.time.DateTime
@@ -14,7 +14,7 @@ case class AlgorithmParams(
 ) extends Params
 
 class Algorithm(val ap: AlgorithmParams)
-  extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] {
+  extends P2LAlgorithm[PreparedData, Model, Query, PredictedResult] with MyQuerySerializer {
 
   @transient lazy val logger = Logger[this.type]
 
@@ -40,8 +40,12 @@ class Model(mod: LinearRegressionModel) extends Serializable { // will not be Da
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
-    val features = Preparator.toFeaturesVector(new DateTime(query.eventTime))
+    val features = Preparator.toFeaturesVector(query.eventTime)
     mod.predict(features)
   }
+}
+
+trait MyQuerySerializer extends CustomQuerySerializer {
+  @transient override lazy val querySerializer = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 }
 

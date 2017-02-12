@@ -4,7 +4,7 @@ import org.apache.predictionio.controller.{Engine, EngineFactory}
 import org.joda.time.DateTime
 
 class Query(
-             val eventTime: Long,
+             val eventTime: DateTime,
              val lng: Double,
              val lat: Double
 

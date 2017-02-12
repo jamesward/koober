@@ -60,21 +60,23 @@ class DataSource(val dsp: DataSourceParams)
   : Seq[(TrainingData, EmptyEvaluationInfo, RDD[(Query, ActualResult)])] = {
     require(dsp.evalK.nonEmpty, "DataSourceParams.evalK must not be None")
 
-    val data: UserEvents = readData(sc)
+    val data: UserEvents = readData(sc) // have eventTime, lng and lat
 
-    // K-fold splitting
+    // splitting by time based on what evalK is. evalK should be the percent of data to be in the training points
     val evalK = dsp.evalK.get
-    val indexedPoints: RDD[(UserEvent, Long)] = data.zipWithIndex()
+    val sortedData = data.sortBy(ue=>ue.eventTime.getMillis());
+    val indexedPoints: RDD[(UserEvent, Long)] = sortedData.zipWithIndex()
+    val count = sortedData.count().toInt
 
-    (0 until evalK).map { idx =>
-      val trainingPoints = indexedPoints.filter(_._2 % evalK != idx).map(_._1)
-      val testingPoints = indexedPoints.filter(_._2 % evalK == idx).map(_._1)
+    (0 until count).map { idx =>
+      val trainingPoints = indexedPoints.filter(_._2 <= evalK*count).map(_._1)
+      val testingPoints = indexedPoints.filter(_._2 > evalK*count).map(_._1)
 
       (
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime.getMillis(), p.lat, p.lng), new ActualResult(1))
+          p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(1))
         }
       )
     }
