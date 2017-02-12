@@ -4,6 +4,7 @@ import grizzled.slf4j.Logger
 import org.apache.predictionio.controller.{P2LAlgorithm, Params}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
+import org.joda.time.DateTime
 
 case class AlgorithmParams(
   iterations:        Int    = 10000,
@@ -39,7 +40,7 @@ class Model(mod: LinearRegressionModel) extends Serializable { // will not be Da
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
-    val features = Preparator.toFeaturesVector(query.eventTime)
+    val features = Preparator.toFeaturesVector(new DateTime(query.eventTime))
     mod.predict(features)
   }
 }

@@ -4,9 +4,10 @@ import org.apache.predictionio.controller.{Engine, EngineFactory}
 import org.joda.time.DateTime
 
 class Query(
-             val eventTime: DateTime,
+             val eventTime: Long,
              val lng: Double,
              val lat: Double
+
            ) extends Serializable
 
 class PredictedResult(

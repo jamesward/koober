@@ -46,7 +46,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
   }
 
   /**
-    * Based on different metrics, try to normalize the event time into a double so we can calculate demand
+    * Based on different metrics, try to normalize the event time into a long so we can calculate demand
     * @param eventTime
     * @param metric
     *        Supports: minute, fiveMinutes, halfHour, hour
