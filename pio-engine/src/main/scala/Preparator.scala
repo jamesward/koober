@@ -13,9 +13,10 @@ import java.util.{Calendar, TimeZone}
 import org.joda.time.DateTime
 
 class PreparedData(
-                    val data: RDD[LabeledPoint]
-                  ) extends Serializable
-  with SanityCheck {
+    val data: RDD[LabeledPoint]
+) extends Serializable
+    with SanityCheck {
+
 
   override def sanityCheck(): Unit = {
     require(data.take(1).nonEmpty, s"data cannot be empty!")
