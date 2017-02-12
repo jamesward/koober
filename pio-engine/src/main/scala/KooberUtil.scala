@@ -3,6 +3,7 @@ package edu.cs5152.predictionio.demandforecasting
 
 import grizzled.slf4j.Logger
 import org.apache.spark.SparkContext
+import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.linalg.{Vector, Vectors}
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
@@ -32,20 +33,6 @@ object KooberUtil {
     values map ((normalizedTime) => (normalizedTime, 1)) countByKey()
   }
 
-  def prepareDemand(trainingData: RDD[UserEvent]) = {
-    val eventTimes = trainingData map { _.eventTime } distinct () collect ()
-
-    val timeMap = createNormalizedMap(trainingData)
-
-    val countMap = createCountMap(timeMap.values)
-
-    val data = timeMap map { timeMapEntry =>
-      LabeledPoint(countMap.get(timeMapEntry._2).get, PreparatorObject.toFeaturesVector(timeMapEntry._1))
-    } cache ()
-
-
-    data
-  }
   /**
     * Based on different metrics, try to normalize the event time into a long so we can calculate demand
     * @param eventTime
@@ -64,17 +51,3 @@ object KooberUtil {
   }
 }
 
-object PreparatorObject {
-
-  @transient lazy val logger = Logger[this.type]
-
-  def toFeaturesVector(eventTime: DateTime): Vector = {
-    Vectors.dense(
-      Array(
-        eventTime.dayOfWeek().get().toDouble,
-        eventTime.dayOfMonth().get().toDouble,
-        eventTime.minuteOfDay().get().toDouble,
-        eventTime.monthOfYear().get().toDouble
-      )) //will be changed when Preparator is properly implemented
-  }
-}
