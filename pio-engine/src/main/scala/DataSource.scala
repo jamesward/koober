@@ -12,7 +12,7 @@ import org.joda.time.DateTime
 
 case class DataSourceParams(
                              appName: String,
-                             evalK: Option[Int]
+                             evalK: Option[Double]
                            ) extends Params
 
 class UserEvent(
@@ -71,12 +71,14 @@ class DataSource(val dsp: DataSourceParams)
     (0 until count).map { idx =>
       val trainingPoints = indexedPoints.filter(_._2 <= evalK*count).map(_._1)
       val testingPoints = indexedPoints.filter(_._2 > evalK*count).map(_._1)
-
+      val testingNormalized = KooberUtil.createNormalizedMap(testingPoints)
+      val testingCountMap = KooberUtil.createCountMap(testingNormalized.values)
       (
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime, p.lat, p.lng), new ActualResult(1))
+          p => (new Query(p.eventTime, p.lat, p.lng),
+            new ActualResult(testingCountMap.get(testingNormalized.filter(e=>e._1 == p.eventTime).collect()(0)._2).get))
         }
       )
     }
