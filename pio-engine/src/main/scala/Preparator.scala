@@ -13,8 +13,7 @@ import java.util.{Calendar, TimeZone}
 import org.joda.time.DateTime
 
 class PreparedData(
-    val eventTimes: Array[DateTime],
-    val data: RDD[(DateTime, LabeledPoint)]
+    val data: RDD[LabeledPoint]
 ) extends Serializable
     with SanityCheck {
 
@@ -34,13 +33,12 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
       (ev.eventTime, 1)
     } reduceByKey (_ + _)
 
-    val data = countMap.keys map { eventTime =>
-      (eventTime,
+    val data = countMap.keys map  { eventTime =>
        LabeledPoint(Row.fromSeq(countMap.lookup(eventTime)).getInt(0).toDouble,
-                    Preparator.toFeaturesVector(eventTime)))
+                    Preparator.toFeaturesVector(eventTime))
     } cache ()
 
-    new PreparedData(eventTimes, data)
+    new PreparedData(data)
   }
 }
 

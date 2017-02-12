@@ -1,11 +1,9 @@
 package edu.cs5152.predictionio.demandforecasting
 
-import org.apache.predictionio.controller.P2LAlgorithm
-import org.apache.predictionio.controller.Params
 import grizzled.slf4j.Logger
+import org.apache.predictionio.controller.{P2LAlgorithm, Params}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
-import org.joda.time.DateTime
 
 case class AlgorithmParams(
   iterations:        Int    = 10000,
@@ -19,7 +17,7 @@ class Algorithm(val ap: AlgorithmParams)
 
   @transient lazy val logger = Logger[this.type]
 
-  def train(sc: SparkContext, data: PreparedData): Model = {
+  def train(sc: SparkContext, preparedData: PreparedData): Model = {
     val lin = new LinearRegressionWithSGD()
     lin.setIntercept(true)
     lin.optimizer
@@ -27,14 +25,7 @@ class Algorithm(val ap: AlgorithmParams)
       .setRegParam(ap.regParam)
       .setMiniBatchFraction(ap.miniBatchFraction)
       .setStepSize(ap.stepSize)
-
-    val mod: Map[DateTime, LinearRegressionModel] = (data.eventTimes map {
-      eventTime =>
-        val eventData = data.data filter {_._1 == eventTime} map {_._2} cache()
-        (eventTime, lin.run(eventData))
-    }).toMap
-
-    new Model(mod)
+    new Model(lin.run(preparedData.data))
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
@@ -43,13 +34,13 @@ class Algorithm(val ap: AlgorithmParams)
   }
 }
 
-class Model(val mod: Map[DateTime, LinearRegressionModel]) extends Serializable { // will not be DateTime after changes
+class Model(mod: LinearRegressionModel) extends Serializable { // will not be DateTime after changes
                                                                                   // to Preparator
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
     val features = Preparator.toFeaturesVector(query.eventTime)
-    mod(query.eventTime).predict(features)
+    mod.predict(features)
   }
 }
 
