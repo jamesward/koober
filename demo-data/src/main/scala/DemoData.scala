@@ -21,7 +21,7 @@ import scala.util.Try
 
 object DemoData extends App {
 
-  val numberOfRecordsToProcess = 100
+  val numberOfRecordsToProcess = 11477
 
   val url = new URL("https://s3-us-west-2.amazonaws.com/4740/fake.csv.zip")
 
