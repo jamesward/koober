@@ -23,7 +23,7 @@ object DemoData extends App {
 
   val numberOfRecordsToProcess = 100
 
-  val url = new URL("https://s3-us-west-2.amazonaws.com/4740/yellow_tripdata_2015_all_sample.csv.zip")
+  val url = new URL("https://s3-us-west-2.amazonaws.com/4740/fake.csv.zip")
 
   val tmpFile = new File("/tmp/koober-demo-data.csv")
 
