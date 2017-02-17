@@ -3,6 +3,8 @@ package edu.cs5152.predictionio.demandforecasting
 import grizzled.slf4j.Logger
 import org.apache.predictionio.controller.{CustomQuerySerializer, P2LAlgorithm, Params}
 import org.apache.spark.SparkContext
+import org.apache.spark.mllib.clustering.KMeansModel
+import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
 import org.joda.time.DateTime
 
@@ -26,7 +28,7 @@ class Algorithm(val ap: AlgorithmParams)
       .setRegParam(ap.regParam)
       .setMiniBatchFraction(ap.miniBatchFraction)
       .setStepSize(ap.stepSize)
-    new Model(lin.run(preparedData.data))
+    new Model(lin.run(preparedData.data), Preparator.locationClusterModel.get)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
@@ -35,12 +37,13 @@ class Algorithm(val ap: AlgorithmParams)
   }
 }
 
-class Model(mod: LinearRegressionModel) extends Serializable { // will not be DateTime after changes
+class Model(mod: LinearRegressionModel, locationClusterModel: KMeansModel) extends Serializable { // will not be DateTime after changes
                                                                                   // to Preparator
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
-    val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng)
+    val locationClusterLabel = locationClusterModel.predict(Vectors.dense(query.lat, query.lng))
+    val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng, locationClusterLabel)
     mod.predict(features)
   }
 }

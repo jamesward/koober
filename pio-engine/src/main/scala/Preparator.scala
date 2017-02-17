@@ -36,7 +36,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val numClusters = 5
     val numIterations = 20
     // store them statically so that we can use them when querying
-    Preparator.clusterModel = Some(KMeans.train(locationData, numClusters, numIterations))
+    Preparator.locationClusterModel = Some(KMeans.train(locationData, numClusters, numIterations))
 
     val normalizedTime = KooberUtil.createNormalizedMap(trainingData.data)
 
@@ -47,7 +47,6 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
       LabeledPoint(countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get, Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng))
     } cache ()
 
-
     new PreparedData(data)
   }
 }
@@ -55,16 +54,20 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
 object Preparator {
 
   @transient lazy val logger = Logger[this.type]
-  var clusterModel = null:Option[KMeansModel]
+  var locationClusterModel: Option[KMeansModel] = None
 
   def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double): Vector = {
+    toFeaturesVector(eventTime, lat, lng, Preparator.locationClusterModel.get.predict(Vectors.dense(lat, lng)).toDouble)
+  }
+
+  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, locationClusterLabel: Double): Vector = {
     Vectors.dense(
       Array(
         eventTime.dayOfWeek().get().toDouble,
         eventTime.dayOfMonth().get().toDouble,
         eventTime.minuteOfDay().get().toDouble,
         eventTime.monthOfYear().get().toDouble,
-        Preparator.clusterModel.get.predict(Vectors.dense(lat, lng)).toDouble
-      )) //will be changed when Preparator is properly implemented
+        locationClusterLabel
+      ))
   }
 }
