@@ -77,7 +77,7 @@ class DataSource(val dsp: DataSourceParams)
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime, p.lat, p.lng),
+          p => (new Query(p.eventTime.toString(), p.lat, p.lng),
             new ActualResult(testingCountMap.get(testingNormalized.filter(e=>e._1 == p.eventTime).collect()(0)._2).get))
         }
       )

@@ -64,7 +64,7 @@ object Preparator {
         eventTime.dayOfMonth().get().toDouble,
         eventTime.minuteOfDay().get().toDouble,
         eventTime.monthOfYear().get().toDouble,
-        clusterModel.get.predict(Vectors.dense(lat, lng)).toDouble
+        Preparator.clusterModel.get.predict(Vectors.dense(lat, lng)).toDouble
       )) //will be changed when Preparator is properly implemented
   }
 }
