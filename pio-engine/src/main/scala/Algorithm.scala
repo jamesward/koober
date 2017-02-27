@@ -9,10 +9,10 @@ import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressio
 import org.joda.time.DateTime
 
 case class AlgorithmParams(
-  iterations:        Int    = 10000,
-  regParam:          Double = 0.0,
+  iterations:        Int    = 20,
+  regParam:          Double = 0.1,
   miniBatchFraction: Double = 1.0, 
-  stepSize:          Double = 0.1
+  stepSize:          Double = 0.001
 ) extends Params
 
 class Algorithm(val ap: AlgorithmParams)
@@ -23,12 +23,16 @@ class Algorithm(val ap: AlgorithmParams)
   def train(sc: SparkContext, preparedData: PreparedData): Model = {
     val lin = new LinearRegressionWithSGD()
     lin.setIntercept(true)
+    lin.setValidateData(true)
+    preparedData.data.collect().foreach(println)
     lin.optimizer
-      .setNumIterations(ap.iterations)
-      .setRegParam(ap.regParam)
-      .setMiniBatchFraction(ap.miniBatchFraction)
-      .setStepSize(ap.stepSize)
-    new Model(lin.run(preparedData.data), Preparator.locationClusterModel.get)
+      .setNumIterations(50)
+      .setMiniBatchFraction(1.0)
+      .setStepSize(0.002)
+    val linearRegressionModel = lin.run(preparedData.data, Vectors.dense(0.2, 0.2, 0.5, 0.005, 0.1))
+//    print(linearRegressionModel.intercept)
+//    print(linearRegressionModel.weights)
+    new Model(linearRegressionModel, Preparator.locationClusterModel.get)
   }
 
   def predict(model: Model, query: Query): PredictedResult = {
