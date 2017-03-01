@@ -48,3 +48,7 @@ Setup PredictionIO Pipeline:
 Copy Demo Data into the Pipeline:
 
     ./sbt demoData/run
+
+Start the Demand Dashboard
+
+    PREDICTIONIO_URL=http://asdf.com ./sbt demandDashboard/run
