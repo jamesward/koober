@@ -1,4 +1,4 @@
-import edu.cs5152.predictionio.demandforecasting._
+package edu.cs5152.predictionio.demandforecasting
 import grizzled.slf4j.Logger
 import org.apache.predictionio.controller.{CustomQuerySerializer, P2LAlgorithm}
 import org.apache.spark.SparkContext
@@ -17,10 +17,10 @@ class AlgorithmGBTree extends P2LAlgorithm[PreparedData, ModelGBTree, Query, Pre
 
   override def train(sc: SparkContext, preparedData: PreparedData): ModelGBTree ={
     val boostingStrategy = BoostingStrategy.defaultParams("Regression")
-    boostingStrategy.setNumIterations(3) // Note: Use more iterations in practice.
-    boostingStrategy.getTreeStrategy().setMaxDepth(5)
+    boostingStrategy.setNumIterations(10)
+    boostingStrategy.getTreeStrategy().setMaxDepth(10)
     //  Empty categoricalFeaturesInfo indicates all features are continuous.
-    boostingStrategy.getTreeStrategy().setCategoricalFeaturesInfo(Map[Int, Int]())
+    //boostingStrategy.getTreeStrategy().setCategoricalFeaturesInfo(Map[Int, Int]())
 
     val gradientBoostedTreeModel = GradientBoostedTrees.train(preparedData.data, boostingStrategy)
     new ModelGBTree(gradientBoostedTreeModel, Preparator.locationClusterModel.get)
@@ -41,8 +41,4 @@ class ModelGBTree(mod: GradientBoostedTreesModel, locationClusterModel: KMeansMo
     val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng, locationClusterLabel)
     mod.predict(features)
   }
-}
-
-trait MyQuerySerializer extends CustomQuerySerializer {
-  @transient override lazy val querySerializer = org.json4s.DefaultFormats ++ org.json4s.ext.JodaTimeSerializers.all
 }
