@@ -1,0 +1,35 @@
+{
+  "id":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$ 2017-02-12T15:46:53.637-05:00",
+  "description":"",
+  "engineFactory":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$",
+  "datasource":{
+    "name":"",
+    "params":{
+      "appName":"koober",
+      "evalK":5
+    }
+  },
+  "preparator":{
+    "name":"",
+    "params":{
+      
+    }
+  },
+  "algorithms":[
+    {
+      "name":"alg",
+      "params":{
+        "iterations":4096,
+        "regParam":0.0,
+        "miniBatchFraction":1.0,
+        "stepSize":0.9
+      }
+    }
+  ],
+  "serving":{
+    "name":"",
+    "params":{
+      
+    }
+  }
+}
