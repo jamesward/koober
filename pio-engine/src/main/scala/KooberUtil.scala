@@ -21,7 +21,7 @@ object KooberUtil {
     */
   def createNormalizedMap(values:RDD[UserEvent]): RDD[(DateTime, Long)] ={
     values map { ev =>
-      (ev.eventTime, normalize(ev.eventTime, "minute"))}//CHANGE THIS to change the granularity of how to group demands
+      (ev.eventTime, normalize(ev.eventTime, "hour"))}//CHANGE THIS to change the granularity of how to group demands
   }
 
   /**
