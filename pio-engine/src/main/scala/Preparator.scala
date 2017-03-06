@@ -31,10 +31,10 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     // clustering coordinates and assign cluster labels.
     val standardScaler = new StandardScaler(true, true)//Used to calculate mean and std so that we can normalize features
     val locationData = trainingData.data map {entry => Vectors.dense(entry.lat, entry.lng)} distinct() cache()
-    val numClusters = 5
-    val numIterations = 20
+
     // store them statically so that we can use them when querying
-    Preparator.locationClusterModel = Some(KMeans.train(locationData, numClusters, numIterations))
+    Preparator.locationClusterModel = Some(KMeans.train(locationData, Preparator.numOfClustersForLocationModel,
+      Preparator.numOfIterationsForLocationModel))
 
     val normalizedTime = KooberUtil.createNormalizedMap(trainingData.data)
 
@@ -45,11 +45,15 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
       Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng)
     } cache ()
 
+    // store them statically so that we can normalize query data during query time
     Preparator.standardScalerModel = Some(standardScaler.fit(featureVector))
+
     val data = trainingData.data map { trainingDataEntry =>
       val demand = countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get
-      val transformedFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng)
-      LabeledPoint(demand, Preparator.standardScalerModel.get.transform(transformedFeatureVector))
+      val timeFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng)
+      val normalizedTimeFeatureVector = Preparator.standardScalerModel.get.transform(timeFeatureVector)
+      val predictedLocationLabel = Preparator.locationClusterModel.get.predict(Vectors.dense(trainingDataEntry.lat, trainingDataEntry.lng))
+      LabeledPoint(demand, Preparator.toFeaturesVector(normalizedTimeFeatureVector, predictedLocationLabel))
     } cache ()
 
     new PreparedData(data)
@@ -61,19 +65,21 @@ object Preparator {
   @transient lazy val logger = Logger[this.type]
   var locationClusterModel: Option[KMeansModel] = None
   var standardScalerModel: Option[StandardScalerModel] = None
+  val numOfClustersForLocationModel = 5
+  val numOfIterationsForLocationModel = 100
 
   def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double): Vector = {
-    toFeaturesVector(eventTime, lat, lng, Preparator.locationClusterModel.get.predict(Vectors.dense(lat, lng)).toDouble)
+    Vectors.dense(Array(
+      eventTime.dayOfWeek().get().toDouble,
+      eventTime.dayOfMonth().get().toDouble,
+      eventTime.minuteOfDay().get().toDouble,
+      eventTime.monthOfYear().get().toDouble
+    ))
   }
 
-  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, locationClusterLabel: Double): Vector = {
-    Vectors.dense(
-      Array(
-        eventTime.dayOfWeek().get().toDouble,
-        eventTime.dayOfMonth().get().toDouble,
-        eventTime.minuteOfDay().get().toDouble,
-        eventTime.monthOfYear().get().toDouble,
-        locationClusterLabel
-      ))
+  def toFeaturesVector(normalizedFeatureVector: Vector, locationClusterLabel: Int): Vector = {
+    val timeFeatures = normalizedFeatureVector.toArray
+    val locationFeatureOneHotEncoding = KooberUtil.convertIntToBinaryArray(locationClusterLabel, numOfClustersForLocationModel)
+    Vectors.dense(timeFeatures ++ locationFeatureOneHotEncoding)
   }
 }

@@ -33,7 +33,8 @@ class Algorithm(val ap: AlgorithmParams)
       .setRegParam(0.5)
 
 // We can use the following sampling to reduce training set by sampling or increase training set by bootstrap
-//    val sample = preparedData.data.sample(true, 0.01).cache();
+    val sample = preparedData.data.sample(true, 0.01).cache();
+    sample.foreach(println)
 
     val linearRegressionModel = lin.run(preparedData.data)
     println(linearRegressionModel.intercept)
@@ -51,9 +52,10 @@ class Model(mod: LinearRegressionModel, locationClusterModel: KMeansModel, stand
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
+    val normalizedTimeFeatureVector = standardScalerModel.transform(Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng))
     val locationClusterLabel = locationClusterModel.predict(Vectors.dense(query.lat, query.lng))
-    val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng, locationClusterLabel)
-    mod.predict(standardScalerModel.transform(features))
+    val features = Preparator.toFeaturesVector(normalizedTimeFeatureVector, locationClusterLabel)
+    mod.predict((features))
   }
 }
 

@@ -1,11 +1,6 @@
 package edu.cs5152.predictionio.demandforecasting
 
 
-import grizzled.slf4j.Logger
-import org.apache.spark.SparkContext
-import org.apache.spark.mllib.clustering.KMeansModel
-import org.apache.spark.mllib.linalg.{Vector, Vectors}
-import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.joda.time.DateTime
 
@@ -48,6 +43,17 @@ object KooberUtil {
       case "hour"           => eventTime.getMillis()/(1000*60*60)
       case _                => throw new NotImplementedError("This normalization method is not implemented")
     }
+  }
+
+  def bool2int(b:Boolean) = if (b) 1 else 0
+
+
+  def convertIntToBinaryArray(n:Int, size:Int):Array[Double] = {
+    val ret = new Array[Double](size)
+    for( a <- 0 to (size-1)){
+      ret.update(a, bool2int(n == a))
+    }
+    ret
   }
 }
 
