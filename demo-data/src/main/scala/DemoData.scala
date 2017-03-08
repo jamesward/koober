@@ -1,94 +1,64 @@
-import java.io.{File, FileOutputStream}
-import java.net.URL
-import java.util.zip.ZipInputStream
+import java.time.ZonedDateTime
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.collection.immutable.Iterable
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Flow, Framing}
-import akka.util.ByteString
+import akka.stream.scaladsl.{Sink, Source}
 import helpers.KafkaHelper
-import org.apache.commons.io.IOUtils
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import org.joda.time.format.DateTimeFormat
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue}
 
-import scala.util.Try
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
 object DemoData extends App {
 
-  val numberOfRecordsToProcess = 11477
-
-  val url = new URL("https://s3-us-west-2.amazonaws.com/4740/fake.csv.zip")
-
-  val tmpFile = new File("/tmp/koober-demo-data.csv")
-
-  if (!tmpFile.exists()) {
-    println(s"$tmpFile does not exists so downloading $url")
-
-    val inputStream = url.openConnection().getInputStream
-    val zipInputStream = new ZipInputStream(inputStream)
-
-    val tmpFileOutputStream = new FileOutputStream(tmpFile)
-
-    println(s"Saving ${zipInputStream.getNextEntry.getName} to $tmpFile")
-
-    IOUtils.copy(zipInputStream, tmpFileOutputStream)
-
-    tmpFileOutputStream.close()
-    zipInputStream.close()
-    inputStream.close()
+  val sourceTry: Try[Source[JsObject, NotUsed]] = args match {
+    case Array(dataType, numMonths, sampleRate) if dataType == "ny" =>
+      println(s"Sending New York data to Kafka")
+      Success(NewYorkDataSource(numMonths.toInt, sampleRate.toInt))
+    case Array(dataType, numRecords, numMonths, numClusters) if dataType == "fake" =>
+      println(s"Sending Fake data to Kafka")
+      val endDate = ZonedDateTime.now()
+      val startDate = endDate.minusMonths(numMonths.toInt)
+      Success(FakeDataSource(numRecords.toInt, startDate, endDate, numClusters.toInt, 10))
+    case _ =>
+      Failure(CommandNotRecognized())
   }
 
-  val dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+  sourceTry.foreach { source =>
+    implicit val system = ActorSystem()
+    implicit val materializer = ActorMaterializer()
 
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
+    val producerSettings = ProducerSettings[String, JsValue](system, new StringSerializer(), KafkaHelper.jsValueSerializer)
+      .withBootstrapServers(KafkaHelper.kafkaUrl(system.settings.config))
 
-  val fileSource = FileIO.fromPath(tmpFile.toPath)
+    val kafkaSink = Producer.plainSink(producerSettings).contramap[JsObject](new ProducerRecord("rider", "", _))
 
-  val lines = Flow[ByteString].via(Framing.delimiter(ByteString(System.lineSeparator), 10000)).map(_.utf8String)
+    val countSink = Sink.fold[Int, JsObject](0) { case (count, _) => count + 1 }
 
-  val parser = Flow[String].mapConcat { line =>
-    val tryParse = Try {
-      val parts = line.split(",")
+    // drop the first row because it is the column names
+    val flow = source.alsoTo(kafkaSink).runWith(countSink)
 
-      val lat = parts(12).toDouble
-      val lng = parts(13).toDouble
-      val datetime = dateTimeFormatter.parseDateTime(parts(19))
-
-
-      Json.obj(
-        "lngLat" -> Json.obj(
-          "lat" -> lat,
-          "lng" -> lng
-        ),
-        "status" -> "pickup",
-        "datetime" -> datetime
-      )
+    flow.onComplete { result =>
+      result.foreach { records => println(s"Sent $records records to Kafka") }
+      system.terminate()
     }
-
-    // we won't be able to parse some rows
-    tryParse.map(Iterable(_)).getOrElse(Iterable.empty[JsObject])
   }
 
-  val producerSettings = ProducerSettings[String, JsValue](system, new StringSerializer(), KafkaHelper.jsValueSerializer)
-    .withBootstrapServers(KafkaHelper.kafkaUrl(system.settings.config))
+  sourceTry.recover {
+    case t: Throwable => println(t.getMessage)
+  }
 
-  val kafkaSink = Producer.plainSink(producerSettings).contramap[JsObject](new ProducerRecord("rider", "", _))
-
-  // drop the first row because it is the column names
-  val flow = fileSource.via(lines).drop(1).via(parser).take(numberOfRecordsToProcess).runWith(kafkaSink)
-
-  println(s"Reading $numberOfRecordsToProcess and sending them to Kafka")
-
-  flow.onComplete { _ =>
-    println(s"Sent $numberOfRecordsToProcess to Kafka")
-    system.terminate()
+  case class CommandNotRecognized() extends Throwable {
+    override def getMessage: String = {
+      """Command args must be either:
+        |ny <number of months> <sample rate>
+        |fake <number of records> <number of months> <number of clusters>""".stripMargin
+    }
   }
 
 }

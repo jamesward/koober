@@ -45,9 +45,15 @@ Setup PredictionIO Pipeline:
 
         ./sbt pioClient/run
 
-Copy Demo Data into the Pipeline:
+Copy demo data into the Pipeline:
 
-    ./sbt demoData/run
+    For fake data, run:
+    
+        ./sbt "demoData/run fake <number of records> <number of months> <number of clusters>"
+        
+    For New York data, run:
+    
+        ./sbt "demoData/run ny <number of months> <sample rate>"
 
 Start the Demand Dashboard
 
