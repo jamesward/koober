@@ -18,6 +18,6 @@ lazy val kafkaToCassandra = (project in file("kafka-to-cassandra")).settings(com
 
 lazy val pioClient = (project in file("pio-client")).settings(commonSettings: _*).dependsOn(kafkaCommon)
 
-lazy val demoData = (project in file("demo-data")).settings(commonSettings: _*).dependsOn(kafkaCommon)
+lazy val demoData = (project in file("demo-data")).settings(commonSettings: _*).dependsOn(kafkaCommon, pioClient)
 
 lazy val demandDashboard = (project in file("demand-dashboard")).settings(commonSettings: _*).enablePlugins(PlayScala, SbtWeb)

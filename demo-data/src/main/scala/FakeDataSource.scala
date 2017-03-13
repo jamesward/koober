@@ -41,14 +41,15 @@ object FakeDataSource {
 
     val baseRandomSource = Source[JsObject](baseRandomIterable)
 
-    // 80% of numRecords get clustered with the same date (right now exactly the same)
+    // 80% of numRecords get clustered with the same date and location
     // todo: is this correctly partitioning?
     val numClusteredRecords = numRecords - numBaseRecords
     val numRecordsPerCluster = (numClusteredRecords.toFloat / numClusters).ceil.toInt
     val clustersIterator = Iterator.fill(numClusteredRecords)(Unit).grouped(numRecordsPerCluster).flatMap { partition =>
       val randomSecondsToAddToStart: Long = (timeBetween.getSeconds * Random.nextDouble()).toLong
       val randomZonedDateTime = startDate.plusSeconds(randomSecondsToAddToStart)
-      partition.map(_ => randomJson(randomZonedDateTime))
+      val json = randomJson(randomZonedDateTime)
+      partition.map(_ => json)
     }
 
     val clusteredSource = Source.fromIterator(() => clustersIterator)

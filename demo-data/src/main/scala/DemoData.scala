@@ -1,10 +1,11 @@
 import java.time.ZonedDateTime
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
+import akka.stream.impl.fusing.GraphStages
 import akka.stream.scaladsl.{Sink, Source}
 import helpers.KafkaHelper
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -12,52 +13,77 @@ import org.apache.kafka.common.serialization.StringSerializer
 import play.api.libs.json.{JsObject, JsValue}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 object DemoData extends App {
 
-  val sourceTry: Try[Source[JsObject, NotUsed]] = args match {
-    case Array(dataType, numMonths, sampleRate) if dataType == "ny" =>
-      println(s"Sending New York data to Kafka")
-      Success(NewYorkDataSource(numMonths.toInt, sampleRate.toInt))
-    case Array(dataType, numRecords, numMonths, numClusters) if dataType == "fake" =>
-      println(s"Sending Fake data to Kafka")
+  implicit val system = ActorSystem()
+  implicit val materializer = ActorMaterializer()
+
+  def sinkFromDestination(destination: String): Try[Sink[JsValue, Future[Done]]] = {
+    if (destination.toLowerCase == "kafka") {
+      val producerSettings = ProducerSettings[String, JsValue](materializer.system, new StringSerializer(), KafkaHelper.jsValueSerializer)
+        .withBootstrapServers(KafkaHelper.kafkaUrl(materializer.system.settings.config))
+
+      val sink = Producer.plainSink(producerSettings).contramap[JsValue](new ProducerRecord("rider", "", _))
+      Success(sink)
+    }
+    else if (destination.toLowerCase == "pio") {
+      val maybeAccessKey = sys.env.get("PIO_ACCESS_KEY")
+      maybeAccessKey.fold[Try[Sink[JsValue, Future[Done]]]] {
+        Failure(new Exception("You must set the PIO_ACCESS_KEY env var!"))
+      } { accessKey =>
+        println("Sending to PIO: " + PioSink.pioUrl)
+        Success(PioSink(accessKey))
+      }
+    }
+    else {
+      Failure(new Exception(s"The destination $destination must be either kafka or pio"))
+    }
+  }
+
+  val sourceSinkTry: Try[(Source[JsObject, NotUsed], Sink[JsValue, Future[Done]])] = args match {
+    case Array(destination, dataType, numMonths, sampleRate) if dataType == "ny" =>
+      val source = NewYorkDataSource(numMonths.toInt, sampleRate.toInt)
+      val sinkTry = sinkFromDestination(destination)
+      val sourceSinkTry = sinkTry.map(source -> _)
+      sourceSinkTry.foreach(_ => println(s"Sending New York data to $destination"))
+      sourceSinkTry
+    case Array(destination, dataType, numRecords, numMonths, numClusters) if dataType == "fake" =>
       val endDate = ZonedDateTime.now()
       val startDate = endDate.minusMonths(numMonths.toInt)
-      Success(FakeDataSource(numRecords.toInt, startDate, endDate, numClusters.toInt, 10))
+      val source = FakeDataSource(numRecords.toInt, startDate, endDate, numClusters.toInt, 10)
+      val sinkTry = sinkFromDestination(destination)
+      val sourceSinkTry = sinkTry.map(source -> _)
+      sourceSinkTry.foreach(_ => println(s"Sending Fake data to $destination"))
+      sourceSinkTry
     case _ =>
       Failure(CommandNotRecognized())
   }
 
-  sourceTry.foreach { source =>
-    implicit val system = ActorSystem()
-    implicit val materializer = ActorMaterializer()
-
-    val producerSettings = ProducerSettings[String, JsValue](system, new StringSerializer(), KafkaHelper.jsValueSerializer)
-      .withBootstrapServers(KafkaHelper.kafkaUrl(system.settings.config))
-
-    val kafkaSink = Producer.plainSink(producerSettings).contramap[JsObject](new ProducerRecord("rider", "", _))
-
+  sourceSinkTry.foreach { case (source, sink) =>
     val countSink = Sink.fold[Int, JsObject](0) { case (count, _) => count + 1 }
 
-    // drop the first row because it is the column names
-    val flow = source.alsoTo(kafkaSink).runWith(countSink)
+    val flow = source.alsoTo(sink).runWith(countSink)
 
     flow.onComplete { result =>
-      result.foreach { records => println(s"Sent $records records to Kafka") }
+      result.foreach { records => println(s"Sent $records records") }
       system.terminate()
     }
   }
 
-  sourceTry.recover {
-    case t: Throwable => println(t.getMessage)
+  sourceSinkTry.recover {
+    case t: Throwable =>
+      println(t.getMessage)
+      system.terminate()
   }
 
   case class CommandNotRecognized() extends Throwable {
     override def getMessage: String = {
       """Command args must be either:
-        |ny <number of months> <sample rate>
-        |fake <number of records> <number of months> <number of clusters>""".stripMargin
+        | <pio|kafka> ny <number of months> <sample rate>
+        | <pio|kafka> fake <number of records> <number of months> <number of clusters>""".stripMargin
     }
   }
 
