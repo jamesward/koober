@@ -9,14 +9,12 @@
   },
   "algorithms": [
     {
-      "name": "alg",
+      "name": "algGBTree",
       "params": {
-        "iterations": 4096,
-        "miniBatchFraction" : 1.0,
-        "regParam" : 0.0,
-        "stepSize": 0.9
+        "iterations": 100
       }
     }
+
   ]
 }
 

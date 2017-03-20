@@ -23,7 +23,17 @@ object ForecastingEngine extends EngineFactory {
     new Engine(
       classOf[DataSource],
       classOf[Preparator],
-      Map("alg" -> classOf[AlgorithmGBTree]),
+      Map(//"algRegression" -> classOf[Algorithm],
+          "algGBTree"     -> classOf[AlgorithmGBTree]),
       classOf[Serving])
   }
 }
+//    {
+//      "name": "algRegression",
+//      "params": {
+//        "iterations": 4096,
+//        "miniBatchFraction" : 1.0,
+//        "regParam" : 0.0,
+//        "stepSize": 0.9
+//      }
+//    },
