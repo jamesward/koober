@@ -2,7 +2,7 @@ name := "demand-dashboard"
 
 libraryDependencies ++= Seq(
   ws,
-  "org.webjars" % "vue" % "2.1.3"
+  "org.webjars" % "jquery" % "3.1.1"
 )
 
 pipelineStages := Seq(digest)
