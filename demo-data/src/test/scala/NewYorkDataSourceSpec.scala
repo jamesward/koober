@@ -1,10 +1,10 @@
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll, MustMatchers}
 import play.api.libs.json.JsObject
 
-class NewYorkDataSourceSpec extends AsyncFlatSpec with Matchers {
+class NewYorkDataSourceSpec extends AsyncFlatSpec with MustMatchers with BeforeAndAfterAll {
 
   implicit val actorSystem = ActorSystem()
   implicit val materializer = ActorMaterializer()
@@ -20,9 +20,12 @@ class NewYorkDataSourceSpec extends AsyncFlatSpec with Matchers {
     val recordsFuture = source.runWith(sink)
 
     recordsFuture.map { records =>
-      assert(records.nonEmpty)
-      // todo: more asserts
+      records must not be 'empty
     }
+  }
+
+  override def afterAll(): Unit = {
+    actorSystem.terminate()
   }
 
 }
