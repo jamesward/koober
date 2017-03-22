@@ -69,25 +69,35 @@ object NewYorkDataSource {
     // todo: data structure changes?
     val parsedLines = partitionedLinesSource.mapConcat { line =>
 
-      val tryParse = Try {
+      val parseTry = Try {
         val parts = line.split(",")
 
         val lat = parts(5).toDouble
         val lng = parts(6).toDouble
         val datetime = dateTimeFormatter.parseDateTime(parts(1))
 
-        Json.obj(
-          "lngLat" -> Json.obj(
-            "lat" -> lat,
-            "lng" -> lng
-          ),
-          "status" -> "pickup",
-          "datetime" -> datetime
-        )
+        (lat, lng, datetime)
+      }
+
+      val onlyGoodLocations = parseTry.filter {
+        case (lat, lng, datetime) =>
+          lat != 0 && lng != 0
+      }
+
+      val jsonTry = onlyGoodLocations.map {
+        case (lat, lng, datetime) =>
+          Json.obj(
+            "lngLat" -> Json.obj(
+              "lat" -> lat,
+              "lng" -> lng
+            ),
+            "status" -> "pickup",
+            "datetime" -> datetime
+          )
       }
 
       // we won't be able to parse some rows
-      tryParse.toOption.toList
+      jsonTry.toOption.toList
     }
 
     parsedLines

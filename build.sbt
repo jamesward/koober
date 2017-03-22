@@ -1,7 +1,11 @@
 name := "koober"
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.11.8"
+  scalaVersion := "2.11.8",
+
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  )
 )
 
 lazy val kafkaServer = (project in file("kafka-server")).settings(commonSettings: _*)
