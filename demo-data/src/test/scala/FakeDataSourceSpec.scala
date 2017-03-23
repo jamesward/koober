@@ -2,10 +2,11 @@ import java.time.ZonedDateTime
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import org.scalatest.{AsyncFlatSpec, Matchers}
+import org.joda.time.DateTime
+import org.scalatest.{AsyncFlatSpec, MustMatchers}
 import play.api.libs.json.JsObject
 
-class FakeDataSourceSpec extends AsyncFlatSpec with Matchers {
+class FakeDataSourceSpec extends AsyncFlatSpec with MustMatchers {
 
   implicit val actorSystem = ActorSystem()
   implicit val materializer = ActorMaterializer()
@@ -20,8 +21,9 @@ class FakeDataSourceSpec extends AsyncFlatSpec with Matchers {
     val recordsFuture = source.runFold(Seq.empty[JsObject])(_ :+ _)
 
     recordsFuture.map { records =>
-      assert(records.size === numRecords)
-      // todo: more asserts
+      records.size must equal (numRecords)
+      (records.head \ "datetime").asOpt[DateTime] must be ('defined)
+      (records.head \ "datetime").as[DateTime].getYear must equal (ZonedDateTime.now().getYear)
     }
   }
 

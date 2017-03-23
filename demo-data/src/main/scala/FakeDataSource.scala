@@ -2,6 +2,7 @@ import java.time.{Duration, ZonedDateTime}
 
 import akka.NotUsed
 import akka.stream.scaladsl.Source
+import org.joda.time.DateTime
 import play.api.libs.json.{JsObject, Json}
 
 import scala.collection.immutable.Iterable
@@ -22,7 +23,7 @@ object FakeDataSource {
           "lng" -> randomLng
         ),
         "status" -> "pickup",
-        "datetime" -> dateTime
+        "datetime" -> new DateTime(dateTime.toEpochSecond * 1000)
     )
   }
 

@@ -1,11 +1,11 @@
 import java.util.UUID
 
-import akka.Done
+import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.kafka.scaladsl.Consumer
+import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.{Flow, Sink}
 import helpers.KafkaHelper
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.joda.time.DateTime
@@ -32,21 +32,19 @@ object PioClient extends App {
 
   val accessKey: String = sys.env("PIO_ACCESS_KEY")
 
-  source.map(_.value()).to(PioSink(accessKey)).run()
+  source.map(_.value()).via(PioFlow(accessKey)).runWith(Sink.ignore)
 }
 
-object PioSink {
+object PioFlow {
 
   val pioUrl: String = "http://localhost:7070/events.json"
 
-
-  def apply(accessKey: String)(implicit materializer: ActorMaterializer): Sink[JsValue, Future[Done]] = {
+  def apply(accessKey: String)(implicit materializer: ActorMaterializer): Flow[JsValue, JsValue, NotUsed] = {
     val wsClient = AhcWSClient()
 
     materializer.system.registerOnTermination(wsClient.close())
 
-    Sink.foreachParallel[JsValue](50) { kafkaJson =>
-
+    Flow[JsValue].mapAsync(50) { kafkaJson =>
       val status = (kafkaJson \ "status").as[String]
       val dateTime = (kafkaJson \ "datetime").as[DateTime]
       val lngLat = (kafkaJson \ "lngLat").as[JsObject]
@@ -59,11 +57,9 @@ object PioSink {
         "eventTime" -> dateTime.toString
       )
 
-      println("Sending to PIO: " + pioJson)
-
       wsClient.url(pioUrl).withQueryString("accessKey" -> accessKey).post(pioJson).flatMap { response =>
         response.status match {
-          case Status.OK => Future.successful(response.json)
+          case Status.CREATED => Future.successful(response.json)
           case _ => Future.failed(new Exception((response.json \ "message").as[String]))
         }
       }
