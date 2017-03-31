@@ -82,17 +82,6 @@ class DataSource(val dsp: DataSourceParams)
         }
       )
     }
-//    val trainingPoints = indexedPoints.filter(_._2 <= evalK*count).map(_._1)
-//    val testingPoints = indexedPoints.filter(_._2 > evalK*count).map(_._1)
-//    val testingNormalized = KooberUtil.createNormalizedMap(testingPoints)
-//    val testingCountMap = KooberUtil.createCountMap(testingNormalized.values)
-//    val training = new TrainingData(trainingPoints)
-//    val eval = new EmptyEvaluationInfo()
-//    val testing = testingPoints.map {
-//      p => (new Query(p.eventTime.toString(), p.lat, p.lng),
-//        new ActualResult(testingCountMap.get(testingNormalized.filter(e=>e._1 == p.eventTime).collect()(0)._2).get))
-//    }
-//    List((training, eval, testing))
   }
 }
 
