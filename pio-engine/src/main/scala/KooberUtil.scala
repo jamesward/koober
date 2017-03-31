@@ -19,9 +19,9 @@ object KooberUtil {
     * @param values
     * @return
     */
-  def createNormalizedMap(values:RDD[UserEvent]): RDD[(DateTime, Long)] ={
-    values map { ev =>
-      (ev.eventTime, normalize(ev.eventTime, "minute"))}//CHANGE THIS to change the granularity of how to group demands
+  def createNormalizedMap(values:RDD[UserEvent]): RDD[(DateTime,Long)] ={
+    values.map(ev =>
+      (ev.eventTime, normalize(ev.eventTime, "halfHour")))//CHANGE THIS to change the granularity of how to group demands
   }
 
   /**
@@ -30,7 +30,8 @@ object KooberUtil {
     * @return
     */
   def createCountMap(values: RDD[Long])={
-    values map ((normalizedTime) => (normalizedTime, 1)) countByKey()
+    val timeMap: RDD[(Long,Long)] = values.map(normalizedTime => (normalizedTime, 1))
+    timeMap.countByKey()//foldByKey(0)((x, y) => x+y)
   }
 
   /**
