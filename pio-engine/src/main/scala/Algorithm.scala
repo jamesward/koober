@@ -24,14 +24,11 @@ class Algorithm(val ap: AlgorithmParams)
     val lin = new LinearRegressionWithSGD()
     lin.setIntercept(true)
     lin.setValidateData(true)
-    preparedData.data.collect().foreach(println)
     lin.optimizer
       .setNumIterations(50)
       .setMiniBatchFraction(1.0)
       .setStepSize(0.002)
     val linearRegressionModel = lin.run(preparedData.data, Vectors.dense(0.2, 0.2, 0.5, 0.005, 0.1))
-//    print(linearRegressionModel.intercept)
-//    print(linearRegressionModel.weights)
     new Model(linearRegressionModel, Preparator.locationClusterModel.get)
   }
 
