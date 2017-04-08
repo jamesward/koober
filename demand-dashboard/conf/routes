@@ -5,4 +5,5 @@
 GET     /                                controllers.HomeController.index
 POST    /predict                         controllers.HomeController.predict
 GET     /fake-predict                    controllers.HomeController.fakePredict
+GET     /demand                          controllers.HomeController.demand(lng: Double, lat: Double)
 GET     /assets/*file                    controllers.Assets.versioned(path="/public", file)

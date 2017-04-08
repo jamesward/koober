@@ -25,4 +25,5 @@ class PredictionIOImpl @Inject() (configuration: Configuration, wsClient: WSClie
       response.json
     }
   }
+
 }
