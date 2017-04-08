@@ -51,4 +51,4 @@ Copy Demo Data into the Pipeline:
 
 Start the Demand Dashboard
 
-    PREDICTIONIO_URL=http://asdf.com ./sbt demandDashboard/run
+    PREDICTIONIO_URL=http://asdf.com MAPBOX_ACCESS_TOKEN=YOUR_MAPBOX_TOKEN ./sbt demandDashboard/run
