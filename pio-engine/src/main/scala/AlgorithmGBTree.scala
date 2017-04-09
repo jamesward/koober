@@ -17,8 +17,8 @@ class AlgorithmGBTree extends P2LAlgorithm[PreparedData, ModelGBTree, Query, Pre
 
   override def train(sc: SparkContext, preparedData: PreparedData): ModelGBTree ={
     val boostingStrategy = BoostingStrategy.defaultParams("Regression")
-    boostingStrategy.setNumIterations(1)
-    boostingStrategy.getTreeStrategy().setMaxDepth(10)
+    boostingStrategy.setNumIterations(5)
+    boostingStrategy.getTreeStrategy().setMaxDepth(30)
     //  Empty categoricalFeaturesInfo indicates all features are continuous.
     //boostingStrategy.getTreeStrategy().setCategoricalFeaturesInfo(Map[Int, Int]())
 

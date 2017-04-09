@@ -46,6 +46,9 @@ object EngineParamsList extends EngineParamsGenerator {
 //      )),
     baseEP.copy(
       algorithmParamsList = Seq(
+        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 0.5, stepSize = 0.2)),
+        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 0.5, stepSize = 0.05)),
+        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 0.5, stepSize = 0.5)),
         ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 0.5, stepSize = 1.0))
       ))
   )
