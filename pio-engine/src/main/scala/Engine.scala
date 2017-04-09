@@ -6,7 +6,9 @@ import org.joda.time.DateTime
 class Query(
              val eventTime: String,
              val lng: Double,
-             val lat: Double
+             val lat: Double,
+             val isRainy: Int,
+             val temperature: Double
 
            ) extends Serializable
 

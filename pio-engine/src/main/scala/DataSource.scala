@@ -16,9 +16,11 @@ case class DataSourceParams(
                            ) extends Params
 
 class UserEvent(
-  val eventTime:  DateTime,
-  val lat:        Double,
-  val lng:        Double
+  val eventTime:   DateTime,
+  val lat:         Double,
+  val lng:         Double,
+  val isRainy:     Int,
+  val temperature: Double
 ) extends Serializable
 
 class DataSource(val dsp: DataSourceParams)
@@ -37,7 +39,9 @@ class DataSource(val dsp: DataSourceParams)
         new UserEvent(
           eventTime = event.eventTime,
           lat = event.properties.get[Double]("lat"),
-          lng = event.properties.get[Double]("lng")
+          lng = event.properties.get[Double]("lng"),
+          isRainy = event.properties.get[Int]("isRainy"),
+          temperature = event.properties.get[Double]("temperature")
         )
       } catch {
         case e: Exception =>
@@ -77,7 +81,7 @@ class DataSource(val dsp: DataSourceParams)
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime.toString(), p.lat, p.lng),
+          p => (new Query(p.eventTime.toString(), p.lat, p.lng, p.isRainy, p.temperature),
             new ActualResult(testingCountMap(testingNormalizedMap(p.eventTime))))
         }
       )
