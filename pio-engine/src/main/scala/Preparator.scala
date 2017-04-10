@@ -44,7 +44,9 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val normalizedTimeMap = normalizedTime.collectAsMap()
 
     val data = trainingData.data map { trainingDataEntry =>
-      LabeledPoint(countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get, Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng, trainingDataEntry.isRainy, trainingDataEntry.temperature))
+      LabeledPoint(countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get, Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng, trainingDataEntry.temperature
+        trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain, trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder, trainingDataEntry.tornado,
+        trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation))
     } cache ()
 
     new PreparedData(data)
@@ -56,19 +58,28 @@ object Preparator {
   @transient lazy val logger = Logger[this.type]
   var locationClusterModel: Option[KMeansModel] = None
 
-  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, isRainy: Int, temperature: Double): Vector = {
-    toFeaturesVector(eventTime, lat, lng, isRainy, temperature, Preparator.locationClusterModel.get.predict(Vectors.dense(lat, lng)).toDouble)
+  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, heat: Double, windchill: Double, precipitation: Double): Vector = {
+    toFeaturesVector(eventTime, lat, lng, temperature, clear,fog,rain,snow,hail,thunder,tornado,heat,windchill,precipitation, Preparator.locationClusterModel.get.predict(Vectors.dense(lat, lng)).toDouble)
   }
 
-  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, isRainy: Int, temperature: Double, locationClusterLabel: Double): Vector = {
+  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, heat: Double, windchill: Double, precipitation: Double, locationClusterLabel: Double): Vector = {
     Vectors.dense(
       Array(
         eventTime.dayOfWeek().get().toDouble,
         eventTime.dayOfMonth().get().toDouble,
         eventTime.minuteOfDay().get().toDouble,
         eventTime.monthOfYear().get().toDouble,
-        isRainy.toDouble,
         temperature,
+        clear.toDouble,
+        fog.toDouble,
+        rain.toDouble,
+        snow.toDouble,
+        hail.toDouble,
+        thunder.toDouble,
+        tornado.toDouble,
+        heat,
+        windchill,
+        precipitation,
         locationClusterLabel
       ))
   }

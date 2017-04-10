@@ -40,8 +40,17 @@ class DataSource(val dsp: DataSourceParams)
           eventTime = event.eventTime,
           lat = event.properties.get[Double]("lat"),
           lng = event.properties.get[Double]("lng"),
-          isRainy = event.properties.get[Int]("isRainy"),
-          temperature = event.properties.get[Double]("temperature")
+          temperature = event.properties.get[Double]("temperature"),
+          clear = event.properties.get[Int]("clear"),
+          fog = event.properties.get[Int]("fog"),
+          rain = event.properties.get[Int]("rain"),
+          snow = event.properties.get[Int]("snow"),
+          hail = event.properties.get[Int]("hail"),
+          thunder = event.properties.get[Int]("thunder"),
+          tornado = event.properties.get[Int]("tornado"),
+          heat = event.properties.get[Double]("heat"),
+          windchill = event.properties.get[Double]("windchill"),
+          precipitation = event.properties.get[Double]("precipitation")
         )
       } catch {
         case e: Exception =>
@@ -81,7 +90,8 @@ class DataSource(val dsp: DataSourceParams)
         new TrainingData(trainingPoints),
         new EmptyEvaluationInfo(),
         testingPoints.map {
-          p => (new Query(p.eventTime.toString(), p.lat, p.lng, p.isRainy, p.temperature),
+          p => (new Query(p.eventTime.toString(), p.lat, p.lng, p.temperature, p.clear, p.fog, p.rain, p.snow, p.hail,
+            p.thunder, p.tornado, p.heat, p.windchill, p.precipitation),
             new ActualResult(testingCountMap(testingNormalizedMap(p.eventTime))))
         }
       )

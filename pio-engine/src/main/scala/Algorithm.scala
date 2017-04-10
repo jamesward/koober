@@ -44,7 +44,9 @@ class Model(mod: LinearRegressionModel, locationClusterModel: KMeansModel) exten
 
   def predict(query: Query): Double = {
     val locationClusterLabel = locationClusterModel.predict(Vectors.dense(query.lat, query.lng))
-    val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng, query.isRainy, query.temperature, locationClusterLabel)
+    val features = Preparator.toFeaturesVector(DateTime.parse(query.eventTime), query.lat, query.lng, query.temperature,
+      query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado, query.heat,
+      query.windchill, query.precipitation, locationClusterLabel)
     mod.predict(features)
   }
 }
