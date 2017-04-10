@@ -1,5 +1,5 @@
 {
-  "id":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$ 2017-03-31T00:14:00.215-04:00",
+  "id":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$ 2017-04-09T17:29:38.122-04:00",
   "description":"",
   "engineFactory":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$",
   "datasource":{
@@ -16,6 +16,33 @@
     }
   },
   "algorithms":[
+    {
+      "name":"algGBTree",
+      "params":{
+        "iterations":40,
+        "regParam":0.1,
+        "miniBatchFraction":0.5,
+        "stepSize":0.2
+      }
+    },
+    {
+      "name":"algGBTree",
+      "params":{
+        "iterations":40,
+        "regParam":0.1,
+        "miniBatchFraction":0.5,
+        "stepSize":0.05
+      }
+    },
+    {
+      "name":"algGBTree",
+      "params":{
+        "iterations":40,
+        "regParam":0.1,
+        "miniBatchFraction":0.5,
+        "stepSize":0.5
+      }
+    },
     {
       "name":"algGBTree",
       "params":{

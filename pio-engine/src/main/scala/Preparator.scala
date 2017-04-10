@@ -44,7 +44,10 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val normalizedTimeMap = normalizedTime.collectAsMap()
 
     val data = trainingData.data map { trainingDataEntry =>
-      LabeledPoint(countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get, Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng))
+
+      val point = LabeledPoint(countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get, Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng))
+      print(point)
+      point
     } cache ()
 
     new PreparedData(data)
