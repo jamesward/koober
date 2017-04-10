@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentation Models</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+
+    <script>
+        $(function(){
+            $(".documentation-section-header-container").load("@routes.HomeController.documentationSectionHeader()");
+            $("#models").addClass("selected");
+            console.log("test");
+        });
+    </script>
+
+    <style>
+        #documentation-models {
+            color: var(--off-black-color);
+            border-bottom: solid 3px var(--off-black-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="documentation-section-header-container"></div>
+
+    <h1 class="documentation-title">Models</h1>
+
+    <div class="documentation-body">
+        <div class="subsection">
+            <h1>Gradient Boosted Trees</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+        <div class="divider"></div>
+        <div class="subsection">
+            <h1>Linear Regression with SGD</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+
+        <div class="divider"></div>
+        <div class="subsection">
+            <h1>Multinomial Logical Regression</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+
+        <div class="divider"></div>
+        <div class="subsection">
+            <h1>Neural Network</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+        <div class="divider"></div>
+        <div class="subsection">
+            <h1>Random Forest</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+    </div>
+</body>
+</html>
