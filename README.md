@@ -45,6 +45,16 @@ Setup PredictionIO Pipeline:
 
         ./sbt pioClient/run
 
-Copy Demo Data into the Pipeline:
+Copy demo data into Kafka or PIO:
 
-    ./sbt demoData/run
+    For fake data, run:
+    
+        ./sbt "demoData/run <kafka|pio> fake <number of records> <number of months> <number of clusters>"
+        
+    For New York data, run:
+    
+        ./sbt "demoData/run <kafka|pio> ny <number of months> <sample rate>"
+
+Start the Demand Dashboard
+
+    PREDICTIONIO_URL=http://asdf.com MAPBOX_ACCESS_TOKEN=YOUR_MAPBOX_TOKEN ./sbt demandDashboard/run
