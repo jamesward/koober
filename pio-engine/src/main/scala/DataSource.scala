@@ -19,8 +19,18 @@ class UserEvent(
   val eventTime:   DateTime,
   val lat:         Double,
   val lng:         Double,
-  val isRainy:     Int,
-  val temperature: Double
+  val temperature: Double,
+  val clear:       Int,
+  val fog:         Int,
+  val rain:        Int,
+  val snow:        Int,
+  val hail:        Int,
+  val thunder:     Int,
+  val tornado:     Int,
+  val heat:        Double,
+  val windchill:   Double,
+  val precipitation: Double
+
 ) extends Serializable
 
 class DataSource(val dsp: DataSourceParams)
