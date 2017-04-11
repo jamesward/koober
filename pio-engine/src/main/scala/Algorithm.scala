@@ -28,7 +28,8 @@ class Algorithm(val ap: AlgorithmParams)
       .setNumIterations(50)
       .setMiniBatchFraction(1.0)
       .setStepSize(0.002)
-    val linearRegressionModel = lin.run(preparedData.data, Vectors.dense(0.2, 0.2, 0.5, 0.005, 0.1))
+    print(preparedData.data)
+    val linearRegressionModel = lin.run(preparedData.data)
     new Model(linearRegressionModel, Preparator.locationClusterModel.get)
   }
 

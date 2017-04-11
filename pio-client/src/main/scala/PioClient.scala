@@ -47,13 +47,13 @@ object PioFlow {
     Flow[JsValue].mapAsync(50) { kafkaJson =>
       val status = (kafkaJson \ "status").as[String]
       val dateTime = (kafkaJson \ "datetime").as[DateTime]
-      val lngLat = (kafkaJson \ "lngLat").as[JsObject]
+      val properties = (kafkaJson \ "properties").as[JsObject]
 
       val pioJson = Json.obj(
         "event" -> status,
         "entityId" -> UUID.randomUUID(),
         "entityType" -> "location",
-        "properties" -> lngLat,
+        "properties" -> properties,
         "eventTime" -> dateTime.toString
       )
 

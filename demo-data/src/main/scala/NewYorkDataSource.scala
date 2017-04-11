@@ -75,21 +75,45 @@ object NewYorkDataSource {
         val lat = parts(5).toDouble
         val lng = parts(6).toDouble
         val datetime = dateTimeFormatter.parseDateTime(parts(1))
+        val temperature = parts(19).toDouble
+        val clear = parts(20).toInt
+        val fog = parts(21).toInt
+        val rain = parts(22).toInt
+        val snow = parts(23).toInt
+        val hail = parts(24).toInt
+        val thunder = parts(25).toInt
+        val tornado = parts(26).toInt
+        val heat = parts(21).toDouble
+        val windchill = parts(22).toDouble
+        val precipitation = parts(23).toDouble
 
-        (lat, lng, datetime)
+        (lat, lng, datetime, temperature, clear, fog, rain, snow, hail, thunder, tornado, heat, windchill, precipitation)
       }
 
       val onlyGoodLocations = parseTry.filter {
-        case (lat, lng, datetime) =>
+        case (lat, lng, datetime, temperature, clear, fog, rain, snow, hail, thunder, tornado, heat, windchill, precipitation) =>
           lat != 0 && lng != 0
       }
 
       val jsonTry = onlyGoodLocations.map {
-        case (lat, lng, datetime) =>
+        case (lat, lng, datetime, temperature, clear, fog, rain, snow, hail, thunder, tornado, heat, windchill, precipitation) =>
           Json.obj(
-            "lngLat" -> Json.obj(
+            "properties" -> Json.obj(
+              // Location Properties
               "lat" -> lat,
-              "lng" -> lng
+              "lng" -> lng,
+              // Weather Properties
+              "temperature" -> temperature,
+              "clear" -> clear,
+              "fog" -> fog,
+              "rain" -> rain,
+              "snow" -> snow,
+              "hail" -> hail,
+              "thunder" -> thunder,
+              "tornado" -> tornado,
+              "heat" -> heat,
+              "windchill" -> windchill,
+              "precipitation" -> precipitation
             ),
             "status" -> "pickup",
             "datetime" -> datetime
