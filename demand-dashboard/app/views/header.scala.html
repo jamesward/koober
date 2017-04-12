@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Header</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+</head>
+<body>
+    <div class="header">
+        <div id="logo-title">
+            <img src="../assets/KooberLogo.png" alt="logo">
+            <h1>Koober</h1>
+        </div>
+        <div id="navbar">
+            <h4><a href="@routes.HomeController.index()">About</a></h4>
+            <h4><a href="@routes.HomeController.documentationData()">Documentation</a></h4>
+            <h4><a href="@routes.HomeController.dashboardAnalysis()">Dashboard</a></h4>
+        </div>
+    </div>
+</body>
+</html>

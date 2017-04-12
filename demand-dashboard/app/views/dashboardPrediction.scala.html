@@ -1,0 +1,105 @@
+@(mapboxAccessToken: String)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction Dashboard</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css" rel="stylesheet" type="text/css"/>
+    <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.css" rel="stylesheet" type="text/css"/>
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+        <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.js"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" charset="utf-8"></script>
+    <script src="@routes.Assets.versioned("prediction.js")"></script>
+
+    <script>
+        mapboxgl.accessToken = '@mapboxAccessToken';
+
+        $(function(){
+            $(".dashboard-section-header-container").load("@routes.HomeController.dashboardSectionHeader()");
+
+            var today = new Date();
+            var currMonth = today.getMonth() < 10 ? '0' + today.getMonth() : today.getMonth();
+            var currDay = today.getDate() < 10 ? '0' + today.getDate() : today.getDate();
+            var currYear = today.getFullYear();
+            $("#date-select").val(currYear + "-" + currMonth + "-" + currDay);
+
+            var currHour = today.getHours() < 10 ? '0' + today.getHours() : today.getHours();
+            var currMins = today.getMinutes() < 10 ? '0' + today.getMinutes() : today.getMinutes();
+            $("#time-select").val(currHour + ":" + currMins);
+        });
+    </script>
+
+    <style>
+        #dashboard-prediction {
+            color: var(--off-black-color);
+            border-bottom: solid 3px var(--off-black-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-section-header-container"></div>
+
+    <div class="prediction-dashboard">
+        <div class="query-section">
+            <div id="datetime-card" class="dashboard-card">
+                <h2 class="card-title">Datetime</h2>
+                <div class="card-divider"></div>
+                <div id="date-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/DateIcon.png" alt="date">
+                    </div>
+                    <input id="date-select" type="date">
+                </div>
+                <div id="time-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/TimeIcon.png" alt="time">
+                    </div>
+                    <input id="time-select" type="time">
+                </div>
+            </div>
+            <div id="location-card" class="dashboard-card">
+                <h2 class="card-title">Location</h2>
+                <div class="card-divider"></div>
+                <div id="latitude-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/LatitudeIcon.png" alt="latitude">
+                    </div>
+                    <input id="latitude-input" type="text" placeholder="Latitude" required title="Enter a latitude!"><br>
+                </div>
+                <div id="longitude-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/LongitudeIcon.png" alt="longitude">
+                    </div>
+                    <input id="longitude-input" type="text" placeholder="Longitude" required title="Enter a longitude!"><br>
+                </div>
+            </div>
+            <div id="algorithm-card" class="dashboard-card">
+                <h2 class="card-title">Algorithm</h2>
+                <div class="card-divider"></div>
+                <div id="algorithm-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/AlgorithmIcon.png" alt="algorithm">
+                    </div>
+                    <select id="algorithm-select" required title="Choose an algorithm to use!">
+                        <option selected="selected" value="0">Gradient Boosted Trees</option>
+                        <option value="1">Linear Regression with SGD</option>
+                        <option value="2">Multinomial Logical Regression</option>
+                        <option value="3">Neural Network</option>
+                        <option value="4">Random Forest</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="map-section">
+            <div id="map-card" class="dashboard-card">
+                <h2 class="card-title">Map</h2>
+                <div class="card-divider"></div>
+                <div id="prediction-map" class="map"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

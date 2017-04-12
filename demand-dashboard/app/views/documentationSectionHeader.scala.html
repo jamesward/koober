@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentation Section Header</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+
+    <script>
+        $(function(){
+            $(".header-container").load("@routes.HomeController.header()");
+        });
+    </script>
+</head>
+<body>
+    <div class="header-container"></div>
+
+    <div class="section-header">
+        <div class="section-logo-title">
+            <img src="../assets/DocumentationSectionIcon.png" alt="logo">
+            <h1>Documentation</h1>
+        </div>
+    </div>
+
+    <div class="section-navbar-container">
+        <div id="documentation-navbar" class="section-navbar">
+            <h4 id="documentation-data"><a href="@routes.HomeController.documentationData()">Data</a></h4>
+            <h4 id="documentation-models"><a href="@routes.HomeController.documentationModels()">Models</a></h4>
+        </div>
+    </div>
+</body>
+</html>

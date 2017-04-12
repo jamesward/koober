@@ -21,15 +21,42 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
   lazy val mapboxAccessToken: String = configuration.getString("mapbox.access-token").get
 
   def index = Action {
-    Ok(views.html.index(mapboxAccessToken))
+    Ok(views.html.index())
+  }
+
+  def header = Action {
+    Ok(views.html.header())
+  }
+
+  def documentationSectionHeader = Action {
+    Ok(views.html.documentationSectionHeader())
+  }
+
+  def documentationData = Action {
+    Ok(views.html.documentationData())
+  }
+
+  def documentationModels = Action {
+    Ok(views.html.documentationModels())
+  }
+
+  def dashboardSectionHeader = Action {
+    Ok(views.html.dashboardSectionHeader())
+  }
+
+  def dashboardAnalysis = Action {
+    Ok(views.html.dashboardAnalysis(mapboxAccessToken))
+  }
+
+  def dashboardPrediction = Action {
+    Ok(views.html.dashboardPrediction(mapboxAccessToken))
   }
 
   // todo: input checking and error handling
   def predict = Action.async(parse.json) { request =>
-    val startDateTime = (request.body \ "startDateTime").as[DateTime]
-    val endDateTime = (request.body \ "endDateTime").as[DateTime]
+    val eventTime = (request.body \ "eventTime").as[DateTime]
 
-    predictionIO.predict(startDateTime, endDateTime).map { json =>
+    predictionIO.predict(eventTime).map { json =>
       Ok(json)
     }
   }

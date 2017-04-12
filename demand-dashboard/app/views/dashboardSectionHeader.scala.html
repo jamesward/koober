@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Section Header</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+
+    <script>
+        $(function(){
+            $(".header-container").load("@routes.HomeController.header()");
+        });
+    </script>
+</head>
+<body>
+    <div class="header-container"></div>
+
+    <div id="dashboard-header-container" class="section-navbar-container">
+        <div id="dashboard-header" class="section-navbar">
+            <h4 id="dashboard-analysis"><a href="@routes.HomeController.dashboardAnalysis()">Analysis</a></h4>
+            <h4 id="dashboard-prediction"><a href="@routes.HomeController.dashboardPrediction()">Prediction</a></h4>
+        </div>
+    </div>
+</body>
+</html>
