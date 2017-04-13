@@ -10,8 +10,8 @@ import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressio
 import org.joda.time.DateTime
 
 case class AlgorithmParams(
-  iterations:        Int    = 20,
-  regParam:          Double = 0.1,
+  iterations:        Int    = 500,
+  regParam:          Double = 0.5,
   miniBatchFraction: Double = 1.0,
   stepSize:          Double = 0.001
 ) extends Params
@@ -27,10 +27,10 @@ class Algorithm(val ap: AlgorithmParams)
     lin.setIntercept(true)
     lin.setValidateData(true)
     lin.optimizer
-      .setNumIterations(1000)
-      .setMiniBatchFraction(1.0)
-      .setStepSize(0.001)
-      .setRegParam(0.5)
+      .setNumIterations(ap.iterations)
+      .setMiniBatchFraction(ap.miniBatchFraction)
+      .setStepSize(ap.stepSize)
+      .setRegParam(ap.regParam)
 
 // We can use the following sampling to reduce training set by sampling or increase training set by bootstrap
     val sample = preparedData.data.sample(true, 0.2).cache();

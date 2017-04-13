@@ -42,11 +42,11 @@ object EngineParamsList extends EngineParamsGenerator {
   engineParamsList = Seq(
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("alg", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.9))
+        ("alg", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001))
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("alg", AlgorithmParams(iterations = 4096, miniBatchFraction = 0.5, stepSize = 1.0))
+        ("alg", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.005))
       ))
   )
 }

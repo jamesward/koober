@@ -1,5 +1,5 @@
 {
-  "id":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$ 2017-03-31T00:20:21.383-04:00",
+  "id":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$ 2017-04-12T16:00:51.349-04:00",
   "description":"",
   "engineFactory":"edu.cs5152.predictionio.demandforecasting.RMSEEvaluation$",
   "datasource":{
@@ -20,9 +20,9 @@
       "name":"alg",
       "params":{
         "iterations":4096,
-        "regParam":0.1,
+        "regParam":0.5,
         "miniBatchFraction":1.0,
-        "stepSize":0.9
+        "stepSize":0.005
       }
     }
   ],

@@ -11,10 +11,10 @@
     {
       "name": "alg",
       "params": {
-        "iterations": 4096,
+        "iterations": 500,
         "miniBatchFraction" : 1.0,
-        "regParam" : 0.0,
-        "stepSize": 0.9
+        "regParam" : 0.5,
+        "stepSize": 0.001
       }
     }
   ]
