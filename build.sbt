@@ -20,4 +20,6 @@ lazy val pioClient = (project in file("pio-client")).settings(commonSettings: _*
 
 lazy val demoData = (project in file("demo-data")).settings(commonSettings: _*).dependsOn(kafkaCommon)
 
+lazy val dl4j = (project in file("dl4j")).settings(commonSettings: _*)
+
 lazy val demandDashboard = (project in file("demand-dashboard")).settings(commonSettings: _*).enablePlugins(PlayScala, SbtWeb)
