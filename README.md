@@ -58,3 +58,4 @@ Copy demo data into Kafka or PIO:
 Start the Demand Dashboard
 
     PREDICTIONIO_URL=http://asdf.com MAPBOX_ACCESS_TOKEN=YOUR_MAPBOX_TOKEN ./sbt demandDashboard/run
+

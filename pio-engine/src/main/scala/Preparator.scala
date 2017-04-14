@@ -52,6 +52,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     Preparator.standardScalerModel = Some(standardScaler.fit(featureVector))
 
     val data = trainingData.data map { trainingDataEntry =>
+
       val demand = countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get
       val timeFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, 
         trainingDataEntry.lng, trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog,

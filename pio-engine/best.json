@@ -17,7 +17,7 @@
   },
   "algorithms":[
     {
-      "name":"alg",
+      "name":"algGBTree",
       "params":{
         "iterations":4096,
         "regParam":0.5,

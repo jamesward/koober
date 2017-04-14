@@ -9,7 +9,7 @@
   },
   "algorithms": [
     {
-      "name": "alg",
+      "name": "algGBTree",
       "params": {
         "iterations": 500,
         "miniBatchFraction" : 1.0,
@@ -17,6 +17,7 @@
         "stepSize": 0.001
       }
     }
+
   ]
 }
 
