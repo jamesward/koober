@@ -11,7 +11,7 @@
       {
         "name": "algGBTree",
         "params": {
-        "iterations": 20,
+        "iterations": 100,
         "maxDepth": 10
         }
       }

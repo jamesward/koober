@@ -16,7 +16,7 @@ import org.joda.time.DateTime
   */
 
 case class GBTreeParams(
-  iterations:        Int = 20,
+  iterations:        Int = 100,
   maxDepth:          Int = 10
 ) extends Params
 
