@@ -9,7 +9,7 @@
   },
   "algorithms": [
     {
-      "name": "alg",
+      "name": "multinomialLogistic",
       "params": {
         "iterations": 4096,
         "miniBatchFraction" : 1.0,

@@ -23,7 +23,7 @@ object ForecastingEngine extends EngineFactory {
     new Engine(
       classOf[DataSource],
       classOf[Preparator],
-      Map("alg" -> classOf[MultinomialLogisticRegressionAlgorithm]),
+      Map("multinomialLogistic" -> classOf[MultinomialLogisticRegressionAlgorithm]),
       classOf[Serving])
   }
 }
