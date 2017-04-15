@@ -41,7 +41,7 @@ object NewYorkDataSource {
     // todo: don't save these locally if there isn't the space for it
     val files = filenames.map { filename =>
 
-      val url = new URL(s"https://s3.amazonaws.com/nyc-tlc/trip+data/$filename")
+      val url = new URL(s"https://s3.amazonaws.com/predictionio-temp-file/ny_yellowcab_with_weather_data.csv")
 
       val tmpFile = new File("/tmp", filename)
 
