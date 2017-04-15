@@ -52,7 +52,7 @@ class Model(mod: LinearRegressionModel, locationClusterModel: KMeansModel, stand
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {
-    val normalizedFeatureVector = standardScalerModel.transform(Preparator.toFeaturesVector(DateTime.parse(query.eventTime), 
+    val normalizedFeatureVector = standardScalerModel.transform(Preparator.toFeaturesVector(DateTime.parse(query.eventTime),
       query.lat, query.lng, query.temperature,
       query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado, query.heat,
       query.windchill, query.precipitation))

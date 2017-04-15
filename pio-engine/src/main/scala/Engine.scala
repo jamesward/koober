@@ -49,3 +49,13 @@ object ForecastingEngine extends EngineFactory {
 //        "stepSize": 0.9
 //      }
 //    },
+//,
+//{
+//  "name": "multinomialLogistic",
+//  "params": {
+//  "iterations": 4096,
+//  "numClasses" : 20,
+//  "regParam" : 0.5,
+//  "convergenceTol": 0.01
+//  }
+//}

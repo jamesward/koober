@@ -1,6 +1,6 @@
 package edu.cs5152.predictionio.demandforecasting
 import grizzled.slf4j.Logger
-import org.apache.predictionio.controller.{CustomQuerySerializer, P2LAlgorithm}
+import org.apache.predictionio.controller.{CustomQuerySerializer, P2LAlgorithm, Params}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.linalg.Vectors
@@ -14,12 +14,19 @@ import org.joda.time.DateTime
 /**
   * Created by YitingWang on 3/2/17.
   */
-class AlgorithmGBTree extends P2LAlgorithm[PreparedData, ModelGBTree, Query, PredictedResult] with MyQuerySerializer{
+
+case class GBTreeParams(
+  iterations:        Int = 500,
+  maxDepth:          Int = 100
+) extends Params
+
+class AlgorithmGBTree(val ap: GBTreeParams)
+  extends P2LAlgorithm[PreparedData, ModelGBTree, Query, PredictedResult] with MyQuerySerializer{
 
   override def train(sc: SparkContext, preparedData: PreparedData): ModelGBTree ={
     val boostingStrategy = BoostingStrategy.defaultParams("Regression")
-    boostingStrategy.setNumIterations(5)
-    boostingStrategy.getTreeStrategy().setMaxDepth(30)
+    boostingStrategy.setNumIterations(ap.iterations)
+    boostingStrategy.getTreeStrategy().setMaxDepth(ap.maxDepth)
     //  Empty categoricalFeaturesInfo indicates all features are continuous.
     //boostingStrategy.getTreeStrategy().setCategoricalFeaturesInfo(Map[Int, Int]())
 

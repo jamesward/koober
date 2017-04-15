@@ -42,18 +42,18 @@ object EngineParamsList extends EngineParamsGenerator {
   engineParamsList = Seq(
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 1.0, stepSize = 0.9))
-        ("algGBTree", AlgorithmParams(iterations = 4096, miniBatchFraction = 0.9, stepSize = 0.1))
+        ("algGBTree", GBTreeParams(iterations = 40, maxDepth = 10)),
+        ("algGBTree", GBTreeParams(iterations = 4096, maxDepth = 50))
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("algRegression", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001))
+        ("algRegression", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001)),
         ("algRegression", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.005))
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("multinomialLogistic", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.9))
-        ("multinomialLogistic", AlgorithmParams(iterations = 4096, miniBatchFraction = 0.5, stepSize = 1.0))
+        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 20, convergenceTol = 0.01, regParam = 0.5)),
+        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 40, convergenceTol = 0.01, regParam = 0.5))
       ))
   )
 }

@@ -12,9 +12,7 @@
       "name": "algGBTree",
       "params": {
         "iterations": 500,
-        "miniBatchFraction" : 1.0,
-        "regParam" : 0.5,
-        "stepSize": 0.001
+        "maxDepth": 10
       }
     },
     {
@@ -30,9 +28,9 @@
       "name": "multinomialLogistic",
       "params": {
         "iterations": 4096,
-        "miniBatchFraction" : 1.0,
-        "regParam" : 0.0,
-        "stepSize": 0.9
+        "numClasses" : 20,
+        "regParam" : 0.5,
+        "convergenceTol": 0.01
       }
     }
   ]
