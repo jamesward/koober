@@ -42,8 +42,8 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val normalizedTimeMap = normalizedTime.collectAsMap()
 
     val featureVector = trainingData.data map { trainingDataEntry =>
-      Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng, 
-        trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain, 
+      Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng,
+        trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain,
         trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder, trainingDataEntry.tornado,
         trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation)
     } cache ()
@@ -54,7 +54,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
     val data = trainingData.data map { trainingDataEntry =>
 
       val demand = countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get
-      val timeFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, 
+      val timeFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat,
         trainingDataEntry.lng, trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog,
         trainingDataEntry.rain, trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder,
         trainingDataEntry.tornado, trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation)

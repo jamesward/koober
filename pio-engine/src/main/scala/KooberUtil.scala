@@ -1,6 +1,11 @@
 package edu.cs5152.predictionio.demandforecasting
 
 
+import grizzled.slf4j.Logger
+import org.apache.spark.SparkContext
+import org.apache.spark.mllib.clustering.KMeansModel
+import org.apache.spark.mllib.linalg.{Vector, Vectors}
+import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.joda.time.DateTime
 

@@ -40,17 +40,20 @@ object EngineParamsList extends EngineParamsGenerator {
     dataSourceParams = DataSourceParams(appName = "koober", evalK = Some(0.8)))
 
   engineParamsList = Seq(
-//    baseEP.copy(
-//      algorithmParamsList = Seq(
-//        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 1.0, stepSize = 0.9))
-//      )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("alg", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001))
+        ("algGBTree", AlgorithmParams(iterations = 40, miniBatchFraction = 1.0, stepSize = 0.9))
+        ("algGBTree", AlgorithmParams(iterations = 4096, miniBatchFraction = 0.9, stepSize = 0.1))
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("alg", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.005))
+        ("algRegression", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001))
+        ("algRegression", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.005))
+      )),
+    baseEP.copy(
+      algorithmParamsList = Seq(
+        ("multinomialLogistic", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.9))
+        ("multinomialLogistic", AlgorithmParams(iterations = 4096, miniBatchFraction = 0.5, stepSize = 1.0))
       ))
   )
 }
