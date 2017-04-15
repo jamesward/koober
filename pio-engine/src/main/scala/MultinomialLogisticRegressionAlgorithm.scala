@@ -13,7 +13,7 @@ import org.joda.time.DateTime
 
 case class LogisticParams(
   iterations:        Int    = 4096,
-  numClasses:          Int = 20,
+  numClasses:          Int = 40,
   convergenceTol:      Double = 0.01,
   regParam:          Double = 0.5
 ) extends Params

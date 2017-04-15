@@ -8,31 +8,32 @@
     }
   },
   "algorithms": [
-    {
-      "name": "algGBTree",
-      "params": {
-        "iterations": 500,
+      {
+        "name": "algGBTree",
+        "params": {
+        "iterations": 20,
         "maxDepth": 10
+        }
       }
-    },
-    {
-      "name": "algRegression",
-      "params": {
+      ,
+      {
+        "name": "algRegression",
+        "params": {
         "iterations": 4096,
         "miniBatchFraction" : 1.0,
         "regParam" : 0.0,
         "stepSize": 0.9
-      }
-    },
-    {
-      "name": "multinomialLogistic",
-      "params": {
+        }
+      },
+      {
+        "name": "multinomialLogistic",
+        "params": {
         "iterations": 4096,
-        "numClasses" : 20,
+        "numClasses" : 40,
         "regParam" : 0.5,
         "convergenceTol": 0.01
+        }
       }
-    }
   ]
 }
 

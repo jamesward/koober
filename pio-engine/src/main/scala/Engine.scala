@@ -40,16 +40,23 @@ object ForecastingEngine extends EngineFactory {
       classOf[Serving])
   }
 }
-//    {
-//      "name": "algRegression",
-//      "params": {
-//        "iterations": 4096,
-//        "miniBatchFraction" : 1.0,
-//        "regParam" : 0.0,
-//        "stepSize": 0.9
-//      }
-//    },
+//{
+//  "name": "algGBTree",
+//  "params": {
+//  "iterations": 500,
+//  "maxDepth": 10
+//  }
+//}
 //,
+//{
+//  "name": "algRegression",
+//  "params": {
+//  "iterations": 4096,
+//  "miniBatchFraction" : 1.0,
+//  "regParam" : 0.0,
+//  "stepSize": 0.9
+//  }
+//},
 //{
 //  "name": "multinomialLogistic",
 //  "params": {
