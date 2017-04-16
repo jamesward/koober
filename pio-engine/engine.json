@@ -29,7 +29,7 @@
         "name": "multinomialLogistic",
         "params": {
         "iterations": 4096,
-        "numClasses" : 40,
+        "numClasses" : 200,
         "regParam" : 0.5,
         "convergenceTol": 0.01
         }

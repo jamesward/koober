@@ -52,8 +52,8 @@ object EngineParamsList extends EngineParamsGenerator {
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 20, convergenceTol = 0.01, regParam = 0.5)),
-        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 40, convergenceTol = 0.01, regParam = 0.5))
+        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 200, convergenceTol = 0.01, regParam = 0.5)),
+        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 200, convergenceTol = 0.01, regParam = 0.5))
       ))
   )
 }
