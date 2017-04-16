@@ -19,10 +19,10 @@
       {
         "name": "algRegression",
         "params": {
-        "iterations": 4096,
-        "miniBatchFraction" : 1.0,
+        "iterations": 500,
+        "miniBatchFraction" : 0.5,
         "regParam" : 0.0,
-        "stepSize": 0.9
+        "stepSize": 0.01
         }
       },
       {

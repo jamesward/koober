@@ -47,8 +47,8 @@ object EngineParamsList extends EngineParamsGenerator {
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("algRegression", AlgorithmParams(iterations = 10000, miniBatchFraction = 1.0, stepSize = 0.001)),
-        ("algRegression", AlgorithmParams(iterations = 4096, miniBatchFraction = 1.0, stepSize = 0.005))
+        ("algRegression", AlgorithmParams(iterations = 1000, miniBatchFraction = 0.5, stepSize = 0.01)),
+        ("algRegression", AlgorithmParams(iterations = 5000, miniBatchFraction = 0.5, stepSize = 0.01))
       )),
     baseEP.copy(
       algorithmParamsList = Seq(

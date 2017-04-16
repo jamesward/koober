@@ -11,9 +11,9 @@ import org.joda.time.DateTime
 
 case class AlgorithmParams(
   iterations:        Int    = 500,
-  regParam:          Double = 0.5,
-  miniBatchFraction: Double = 1.0,
-  stepSize:          Double = 0.001
+  regParam:          Double = 0.0,
+  miniBatchFraction: Double = 0.5,
+  stepSize:          Double = 0.01
 ) extends Params
 
 class Algorithm(val ap: AlgorithmParams)
