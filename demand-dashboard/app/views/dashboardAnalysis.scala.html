@@ -1,0 +1,109 @@
+@(mapboxAccessToken: String)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Dashboard</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css" rel="stylesheet" type="text/css"/>
+    <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.css" rel="stylesheet" type="text/css"/>
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+        <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.js"></script>
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" charset="utf-8"></script>
+    <script src="@routes.Assets.versioned("analysis.js")"></script>
+
+    <!-- jQuery UI Slider -->
+    <script src="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.js")"></script>
+    <link rel="stylesheet" href="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.css")">
+
+    <script>
+        mapboxgl.accessToken = '@mapboxAccessToken';
+
+        $(function(){
+            $(".dashboard-section-header-container").load("@routes.HomeController.dashboardSectionHeader()");
+            $( "#date-slider" ).slider();
+            $( "#time-slider" ).slider();
+        });
+    </script>
+
+    <style>
+        #dashboard-analysis {
+            color: var(--off-black-color);
+            border-bottom: solid 3px var(--off-black-color);
+        }
+
+        .mapboxgl-popup {
+            max-width: 400px;
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-section-header-container"></div>
+
+    <div class="analysis-dashboard">
+        <div class="interactive-section">
+            <div id="dataset-card" class="dashboard-card">
+                <h2 class="card-title">Dataset</h2>
+                <div class="card-divider"></div>
+                <div id="dataset-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="../assets/DatasetIcon.png" alt="dataset">
+                    </div>
+                    <select id="dataset-select" required title="Choose an algorithm to use!">
+                        <option selected="selected" value="0">NYC Taxi Data</option>
+                    </select>
+                </div>
+            </div>
+            <div id="datetime-slider-card" class="dashboard-card">
+                <h2 class="card-title">Datetime</h2>
+                <div class="card-divider"></div>
+                <div id="date-slider-field" class="datetime-slider-field">
+                    <div class="slider-title">Date:</div>
+                    <div id="date-slider-value" class="slider-value">6/1/2017</div>
+                    <input id="date-slider" class="datetime-slider" type='range' min='1' max='31' step='1' value='0'></input>
+                </div>
+                <div id="time-slider-field" class="datetime-slider-field">
+                    <div class="slider-title">Time:</div>
+                    <div id="time-slider-value" class="slider-value">00:00-00:30</div>
+                    <input id="time-slider" class="datetime-slider" type='range' min='0' max='47' step='1' value='0'></input>
+                </div>
+            </div>
+        </div>
+        <div class="all-maps-section">
+            <div id="actual-demand-card" class="dashboard-card">
+                <h2 class="card-title">Actual Demand</h2>
+                <div class="card-divider"></div>
+                <div id="actual-demand-map" class="map"></div>
+            </div>
+            <div id="gradient-boosted-trees-card" class="dashboard-card">
+                <h2 class="card-title">Gradient Boosted Trees</h2>
+                <div class="card-divider"></div>
+                <div id="gradient-boosted-trees-map" class="map"></div>
+            </div>
+            <div id="linear-regression-card" class="dashboard-card">
+                <h2 class="card-title">Linear Regression with SGD</h2>
+                <div class="card-divider"></div>
+                <div id="linear-regression-map" class="map"></div>
+            </div>
+            <div id="multinomial-logical-regression-card" class="dashboard-card">
+                <h2 class="card-title">Multinomial Logical Regression</h2>
+                <div class="card-divider"></div>
+                <div id="multinomial-logical-regression-map" class="map"></div>
+            </div>
+            <div id="neural-network-card" class="dashboard-card">
+                <h2 class="card-title">Neural Network</h2>
+                <div class="card-divider"></div>
+                <div id="neural-network-map" class="map"></div>
+            </div>
+            <div id="random-forest-card" class="dashboard-card">
+                <h2 class="card-title">Random Forest</h2>
+                <div class="card-divider"></div>
+                <div id="random-forest-map" class="map"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

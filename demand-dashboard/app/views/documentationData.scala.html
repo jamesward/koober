@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentation Data</title>
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
+
+    <script>
+        $(function(){
+            $(".documentation-section-header-container").load("@routes.HomeController.documentationSectionHeader()");
+        });
+    </script>
+
+    <style>
+        #documentation-data {
+            color: var(--off-black-color);
+            border-bottom: solid 3px var(--off-black-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="documentation-section-header-container"></div>
+
+    <h1 class="documentation-title">Data</h1>
+
+    <div class="documentation-body">
+        <div class="subsection">
+            <h1>New York City Taxi Data</h1>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+        </div>
+    </div>
+</body>
+</html>
