@@ -1,10 +1,11 @@
 import java.util.UUID
 
+import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.kafka.scaladsl.Consumer
+import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.{Flow, Sink}
 import helpers.KafkaHelper
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.joda.time.DateTime
@@ -16,10 +17,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object PioClient extends App {
-
-  val pioUrl = "http://localhost:7070/events.json"
-
-  val accessKey = sys.env("PIO_ACCESS_KEY")
 
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
@@ -33,33 +30,39 @@ object PioClient extends App {
   val subscriptions = Subscriptions.topics("rider")
   val source = Consumer.plainSource(consumerSettings, subscriptions)
 
-  val wsClient = AhcWSClient()
+  val accessKey: String = sys.env("PIO_ACCESS_KEY")
 
-  val sink = Sink.foreachParallel[JsValue](50) { kafkaJson =>
+  source.map(_.value()).via(PioFlow(accessKey)).runWith(Sink.ignore)
+}
 
-    val status = (kafkaJson \ "status").as[String]
-    val dateTime = (kafkaJson \ "datetime").as[DateTime]
-    val lngLat = (kafkaJson \ "lngLat").as[JsObject]
+object PioFlow {
 
-    val pioJson = Json.obj(
-      "event" -> status,
-      "entityId" -> UUID.randomUUID(),
-      "entityType" -> "location",
-      "properties" -> lngLat,
-      "eventTime" -> dateTime.toString
-    )
+  val pioUrl: String = "http://localhost:7070/events.json"
 
-    println("Sending to PIO: " + pioJson)
+  def apply(accessKey: String)(implicit materializer: ActorMaterializer): Flow[JsValue, JsValue, NotUsed] = {
+    val wsClient = AhcWSClient()
 
-    wsClient.url(pioUrl).withQueryString("accessKey" -> accessKey).post(pioJson).flatMap { response =>
-      response.status match {
-        case Status.OK => Future.successful(response.json)
-        case _ => Future.failed(new Exception((response.json \ "message").as[String]))
+    materializer.system.registerOnTermination(wsClient.close())
+
+    Flow[JsValue].mapAsync(50) { kafkaJson =>
+      val status = (kafkaJson \ "status").as[String]
+      val dateTime = (kafkaJson \ "datetime").as[DateTime]
+      val properties = (kafkaJson \ "properties").as[JsObject]
+
+      val pioJson = Json.obj(
+        "event" -> status,
+        "entityId" -> UUID.randomUUID(),
+        "entityType" -> "location",
+        "properties" -> properties,
+        "eventTime" -> dateTime.toString
+      )
+
+      wsClient.url(pioUrl).withQueryString("accessKey" -> accessKey).post(pioJson).flatMap { response =>
+        response.status match {
+          case Status.CREATED => Future.successful(response.json)
+          case _ => Future.failed(new Exception((response.json \ "message").as[String]))
+        }
       }
     }
-
   }
-
-  source.map(_.value()).to(sink).run()
-
 }
