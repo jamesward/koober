@@ -30,37 +30,46 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
 
     // clustering coordinates and assign cluster labels.
     val standardScaler = new StandardScaler(true, true)//Used to calculate mean and std so that we can normalize features
-    val locationData = trainingData.data map {entry => Vectors.dense(entry.lat, entry.lng)} distinct() cache()
+    val locationData = trainingData.data map {entry => Vectors.dense(entry.lat, entry.lng)}
 
     // store them statically so that we can use them when querying
     Preparator.locationClusterModel = Some(KMeans.train(locationData, Preparator.numOfClustersForLocationModel,
       Preparator.numOfIterationsForLocationModel))
 
-    val normalizedTime = KooberUtil.createNormalizedMap(trainingData.data)
+    val timeAndLatLng = trainingData.data map {entry => (entry.eventTime, entry.lat, entry.lng)} distinct()
+    val timeAndLocationLabels = timeAndLatLng map {
+      entry => (entry._1, Preparator.locationClusterModel.get.predict(Vectors.dense(entry._2, entry._3)))
+    } cache()
 
-    val countMap = normalizedTime.values.countByValue()
-    val normalizedTimeMap = normalizedTime.collectAsMap()
+    val normalizedTimeAndLocationLabels = KooberUtil.createNormalizedTimeAndLocationLabelTuple(timeAndLocationLabels)
+    val countMap = normalizedTimeAndLocationLabels.countByValue()
 
-    val featureVector = trainingData.data map { trainingDataEntry =>
-      Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat, trainingDataEntry.lng,
-        trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain,
+    val timeToWeatherMap = trainingData.data map { trainingDataEntry =>
+      (KooberUtil.normalize(trainingDataEntry.eventTime), (trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain,
         trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder, trainingDataEntry.tornado,
-        trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation)
-    } cache ()
+        trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation))
+    } collectAsMap()
+
+    val featureVector = normalizedTimeAndLocationLabels map { entry =>
+      val weatherDataTuple = timeToWeatherMap.get(entry._1).get
+      val denormalizedEventTime = KooberUtil.denormalize(entry._1)
+      Preparator.toFeaturesVector(denormalizedEventTime, weatherDataTuple._1,
+        weatherDataTuple._2, weatherDataTuple._3, weatherDataTuple._4, weatherDataTuple._5, weatherDataTuple._6,
+        weatherDataTuple._7, weatherDataTuple._8, weatherDataTuple._9, weatherDataTuple._10, weatherDataTuple._11)
+    } cache()
 
     // store them statically so that we can normalize query data during query time
     Preparator.standardScalerModel = Some(standardScaler.fit(featureVector))
 
-    val data = trainingData.data map { trainingDataEntry =>
-
-      val demand = countMap.get(normalizedTimeMap.get(trainingDataEntry.eventTime).get).get
-      val timeFeatureVector = Preparator.toFeaturesVector(trainingDataEntry.eventTime, trainingDataEntry.lat,
-        trainingDataEntry.lng, trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog,
-        trainingDataEntry.rain, trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder,
-        trainingDataEntry.tornado, trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation)
+    val data = normalizedTimeAndLocationLabels map { entry =>
+      val demand = countMap.get(entry).get
+      val weatherDataTuple = timeToWeatherMap.get(entry._1).get
+      val denormalizedEventTime = KooberUtil.denormalize(entry._1)
+      val timeFeatureVector = Preparator.toFeaturesVector(denormalizedEventTime, weatherDataTuple._1,
+        weatherDataTuple._2, weatherDataTuple._3, weatherDataTuple._4, weatherDataTuple._5, weatherDataTuple._6,
+        weatherDataTuple._7, weatherDataTuple._8, weatherDataTuple._9, weatherDataTuple._10, weatherDataTuple._11)
       val normalizedTimeFeatureVector = Preparator.standardScalerModel.get.transform(timeFeatureVector)
-      val predictedLocationLabel = Preparator.locationClusterModel.get.predict(Vectors.dense(trainingDataEntry.lat, trainingDataEntry.lng))
-      LabeledPoint(demand, Preparator.toFeaturesVector(normalizedTimeFeatureVector, predictedLocationLabel))
+      LabeledPoint(demand, Preparator.combineFeatureVectors(normalizedTimeFeatureVector, entry._2))
     } cache ()
 
     new PreparedData(data)
@@ -72,10 +81,10 @@ object Preparator {
   @transient lazy val logger = Logger[this.type]
   var locationClusterModel: Option[KMeansModel] = None
   var standardScalerModel: Option[StandardScalerModel] = None
-  val numOfClustersForLocationModel = 5
+  val numOfClustersForLocationModel = 200
   val numOfIterationsForLocationModel = 100
 
-  def toFeaturesVector(eventTime: DateTime, lat: Double, lng: Double, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, heat: Double, windchill: Double, precipitation: Double): Vector = {
+  def toFeaturesVector(eventTime: DateTime, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, heat: Double, windchill: Double, precipitation: Double): Vector = {
     Vectors.dense(Array(
       eventTime.dayOfWeek().get().toDouble,
       eventTime.dayOfMonth().get().toDouble,
@@ -95,7 +104,7 @@ object Preparator {
     ))
   }
 
-  def toFeaturesVector(normalizedFeatureVector: Vector, locationClusterLabel: Int): Vector = {
+  def combineFeatureVectors(normalizedFeatureVector: Vector, locationClusterLabel: Int): Vector = {
     val timeFeatures = normalizedFeatureVector.toArray
     val locationFeatureOneHotEncoding = KooberUtil.convertIntToBinaryArray(locationClusterLabel, numOfClustersForLocationModel)
     Vectors.dense(timeFeatures ++ locationFeatureOneHotEncoding)

@@ -14,14 +14,27 @@ import org.joda.time.DateTime
   */
 object KooberUtil {
 
+  val TIME_INTERVAL_LENGTH = "halfHour"
+
+
+  def createNormalizedMap(values:RDD[UserEvent]): RDD[(DateTime,Long)] =
+  {
+    values.map(ev =>
+      (ev.eventTime, normalize(ev.eventTime, "halfHour"))) //CHANGE THIS to change the granularity of how to group demands
+  }
   /**
     * create a map from eventTime to Normalized eventTime
-    * @param values
+    * @param timeAndLocationLabels
     * @return
     */
-  def createNormalizedMap(values:RDD[UserEvent]): RDD[(DateTime,Long)] ={
-    values.map(ev =>
-      (ev.eventTime, normalize(ev.eventTime, "halfHour")))//CHANGE THIS to change the granularity of how to group demands
+  def createTimeToNormalizedTimeMap(timestamps:RDD[DateTime]): RDD[(DateTime,Long)] ={
+    timestamps.map(time =>
+      (time, normalize(time, TIME_INTERVAL_LENGTH)))//CHANGE THIS to change the granularity of how to group demands
+  }
+
+  def createNormalizedTimeAndLocationLabelTuple(timeAndLocationLabels:RDD[(DateTime, Int)]):RDD[(Long, Int)] = {
+    timeAndLocationLabels.map(timeAndLocationLabel =>
+      (normalize(timeAndLocationLabel._1, TIME_INTERVAL_LENGTH), timeAndLocationLabel._2))
   }
 
   /**
@@ -32,6 +45,10 @@ object KooberUtil {
   def createCountMap(values: RDD[Long])={
     val timeMap: RDD[(Long,Long)] = values.map(normalizedTime => (normalizedTime, 1))
     timeMap.countByKey()//foldByKey(0)((x, y) => x+y)
+  }
+
+  def normalize(eventTime: DateTime): Long = {
+    normalize(eventTime, TIME_INTERVAL_LENGTH)
   }
 
   /**
@@ -47,6 +64,16 @@ object KooberUtil {
       case "fiveMinutes"    => eventTime.getMillis()/(1000*60*5)
       case "halfHour"       => eventTime.getMillis()/(1000*60*30)
       case "hour"           => eventTime.getMillis()/(1000*60*60)
+      case _                => throw new NotImplementedError("This normalization method is not implemented")
+    }
+  }
+
+  def denormalize(normalizedTime: Long): DateTime = {
+    TIME_INTERVAL_LENGTH match{
+      case "minute"         => new DateTime(normalizedTime*(1000*60))
+      case "fiveMinutes"    => new DateTime(normalizedTime*(1000*60*5))
+      case "halfHour"       => new DateTime(normalizedTime*(1000*60*30))
+      case "hour"           => new DateTime(normalizedTime*(1000*60*60))
       case _                => throw new NotImplementedError("This normalization method is not implemented")
     }
   }

@@ -40,8 +40,8 @@ class MultinomialLogisticRegressionAlgorithm(val ap: LogisticParams)
 //    sample.foreach(println)
 
     val logisticRegressionModel = logisticRegression.run(preparedData.data)
-    println(logisticRegressionModel.intercept)
-    println(logisticRegressionModel.weights)
+//    println(logisticRegressionModel.intercept)
+//    println(logisticRegressionModel.weights)
     new LogisticModel(logisticRegressionModel, Preparator.locationClusterModel.get, Preparator.standardScalerModel.get)
   }
 
@@ -56,11 +56,10 @@ class LogisticModel(mod: LogisticRegressionModel, locationClusterModel: KMeansMo
 
   def predict(query: Query): Double = {
     val normalizedFeatureVector = standardScalerModel.transform(Preparator.toFeaturesVector(DateTime.parse(query.eventTime),
-      query.lat, query.lng, query.temperature,
-      query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado, query.heat,
+      query.temperature, query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado, query.heat,
       query.windchill, query.precipitation))
     val locationClusterLabel = locationClusterModel.predict(Vectors.dense(query.lat, query.lng))
-    val features = Preparator.toFeaturesVector(normalizedFeatureVector, locationClusterLabel)
+    val features = Preparator.combineFeatureVectors(normalizedFeatureVector, locationClusterLabel)
     mod.predict(features)
   }
 }
