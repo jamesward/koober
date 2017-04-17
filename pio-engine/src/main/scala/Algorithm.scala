@@ -33,8 +33,8 @@ class Algorithm(val ap: AlgorithmParams)
       .setRegParam(ap.regParam)
 
 // We can use the following sampling to reduce training set by sampling or increase training set by bootstrap
-    val sample = preparedData.data.sample(true, 0.2).cache();
-    sample.foreach(println)
+//    val sample = preparedData.data.sample(true, 0.2).cache();
+//    sample.foreach(println)
 
     val linearRegressionModel = lin.run(preparedData.data)
     println(linearRegressionModel.intercept)

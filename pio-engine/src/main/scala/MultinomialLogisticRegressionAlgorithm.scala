@@ -36,8 +36,8 @@ class MultinomialLogisticRegressionAlgorithm(val ap: LogisticParams)
       .setRegParam(ap.regParam)
 
 // We can use the following sampling to reduce training set by sampling or increase training set by bootstrap
-    val sample = preparedData.data.sample(true, 0.01).cache();
-    sample.foreach(println)
+//    val sample = preparedData.data.sample(true, 0.01).cache();
+//    sample.foreach(println)
 
     val logisticRegressionModel = logisticRegression.run(preparedData.data)
     println(logisticRegressionModel.intercept)
