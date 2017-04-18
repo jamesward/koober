@@ -56,8 +56,7 @@ class LogisticModel(mod: LogisticRegressionModel, locationClusterModel: KMeansMo
 
   def predict(query: Query): Double = {
     val normalizedFeatureVector = standardScalerModel.transform(Preparator.toFeaturesVector(DateTime.parse(query.eventTime),
-      query.temperature, query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado, query.heat,
-      query.windchill, query.precipitation))
+      query.temperature, query.clear, query.fog, query.rain, query.snow, query.hail, query.thunder, query.tornado))
     val locationClusterLabel = locationClusterModel.predict(Vectors.dense(query.lat, query.lng))
     val features = Preparator.combineFeatureVectors(normalizedFeatureVector, locationClusterLabel)
     mod.predict(features)

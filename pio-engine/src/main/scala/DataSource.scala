@@ -26,10 +26,7 @@ class UserEvent(
   val snow:        Int,
   val hail:        Int,
   val thunder:     Int,
-  val tornado:     Int,
-  val heat:        Double,
-  val windchill:   Double,
-  val precipitation: Double
+  val tornado:     Int
 
 ) extends Serializable
 
@@ -57,10 +54,7 @@ class DataSource(val dsp: DataSourceParams)
           snow = event.properties.get[Int]("snow"),
           hail = event.properties.get[Int]("hail"),
           thunder = event.properties.get[Int]("thunder"),
-          tornado = event.properties.get[Int]("tornado"),
-          heat = event.properties.get[Double]("heat"),
-          windchill = event.properties.get[Double]("windchill"),
-          precipitation = event.properties.get[Double]("precipitation")
+          tornado = event.properties.get[Int]("tornado")
         )
       } catch {
         case e: Exception =>
@@ -101,7 +95,7 @@ class DataSource(val dsp: DataSourceParams)
         new EmptyEvaluationInfo(),
         testingPoints.map {
           p => (new Query(p.eventTime.toString(), p.lat, p.lng, p.temperature, p.clear, p.fog, p.rain, p.snow, p.hail,
-            p.thunder, p.tornado, p.heat, p.windchill, p.precipitation),
+            p.thunder, p.tornado),
             new ActualResult(testingCountMap(testingNormalizedMap(p.eventTime))))
         }
       )

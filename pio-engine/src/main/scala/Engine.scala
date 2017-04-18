@@ -14,10 +14,7 @@ class Query(
              val snow: Int,
              val hail: Int,
              val thunder: Int,
-             val tornado: Int,
-             val heat: Double,
-             val windchill: Double,
-             val precipitation: Double
+             val tornado: Int
 
 ) extends Serializable
 
