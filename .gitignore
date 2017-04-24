@@ -1,5 +1,13 @@
+pio.log
 /target/
 /*/target/
 /project/project/
 /.idea/
 /logs/
+/pio-engine/manifest.json
+/pio-engine/pio.log
+/pio-engine/pio.sbt
+/pio-engine/project/target/
+/pio-engine/project/project/
+/pio-engine/.idea/
+*.iml

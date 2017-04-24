@@ -1,93 +1,87 @@
-import java.io.{File, FileOutputStream}
-import java.net.URL
-import java.util.zip.ZipInputStream
+import java.time.ZonedDateTime
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.collection.immutable.Iterable
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.kafka.ProducerSettings
 import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{FileIO, Flow, Framing}
-import akka.util.ByteString
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import helpers.KafkaHelper
-import org.apache.commons.io.IOUtils
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import org.joda.time.format.DateTimeFormat
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.JsValue
 
-import scala.util.Try
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
 object DemoData extends App {
-
-  val numberOfRecordsToProcess = 10
-
-  val url = new URL("https://s3-us-west-2.amazonaws.com/4740/yellow_tripdata_2015_all_sample.csv.zip")
-
-  val tmpFile = new File("/tmp/koober-demo-data.csv")
-
-  if (!tmpFile.exists()) {
-    println(s"$tmpFile does not exists so downloading $url")
-
-    val inputStream = url.openConnection().getInputStream
-    val zipInputStream = new ZipInputStream(inputStream)
-
-    val tmpFileOutputStream = new FileOutputStream(tmpFile)
-
-    println(s"Saving ${zipInputStream.getNextEntry.getName} to $tmpFile")
-
-    IOUtils.copy(zipInputStream, tmpFileOutputStream)
-
-    tmpFileOutputStream.close()
-    zipInputStream.close()
-    inputStream.close()
-  }
-
-  val dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
 
   implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
 
-  val fileSource = FileIO.fromPath(tmpFile.toPath)
+  def flowFromDestination(destination: String): Try[Flow[JsValue, JsValue, NotUsed]] = {
+    if (destination.toLowerCase == "kafka") {
+      val producerSettings = ProducerSettings[String, JsValue](materializer.system, new StringSerializer(), KafkaHelper.jsValueSerializer)
+        .withBootstrapServers(KafkaHelper.kafkaUrl(materializer.system.settings.config))
 
-  val lines = Flow[ByteString].via(Framing.delimiter(ByteString(System.lineSeparator), 10000)).map(_.utf8String)
-
-  val parser = Flow[String].mapConcat { line =>
-    val tryParse = Try {
-      val parts = line.split(",")
-
-      val lat = parts(12).toDouble
-      val lng = parts(13).toDouble
-      val datetime = dateTimeFormatter.parseDateTime(parts(19))
-
-      Json.obj(
-        "lngLat" -> Json.obj(
-          "lat" -> lat,
-          "lng" -> lng
-        ),
-        "status" -> "pickup",
-        "datetime" -> datetime
-      )
+      val sink = Producer.plainSink(producerSettings).contramap[JsValue](new ProducerRecord("rider", "", _))
+      Success(Flow[JsValue].alsoTo(sink))
     }
-
-    // we won't be able to parse some rows
-    tryParse.map(Iterable(_)).getOrElse(Iterable.empty[JsObject])
+    else if (destination.toLowerCase == "pio") {
+      val maybeAccessKey = sys.env.get("PIO_ACCESS_KEY")
+      maybeAccessKey.fold[Try[Flow[JsValue, JsValue, NotUsed]]] {
+        Failure(new Exception("You must set the PIO_ACCESS_KEY env var!"))
+      } { accessKey =>
+        println("Sending to PIO: " + PioFlow.pioUrl)
+        Success(PioFlow(accessKey))
+      }
+    }
+    else {
+      Failure(new Exception(s"The destination $destination must be either kafka or pio"))
+    }
   }
 
-  val producerSettings = ProducerSettings[String, JsValue](system, new StringSerializer(), KafkaHelper.jsValueSerializer)
-    .withBootstrapServers(KafkaHelper.kafkaUrl(system.settings.config))
+  val sourceTry: Try[Source[JsValue, NotUsed]] = args match {
+    case Array(destination, dataType, numMonths, sampleRate) if dataType == "ny" =>
+      val source = NewYorkDataSource(numMonths.toInt, sampleRate.toInt)
+      val flowTry = flowFromDestination(destination).map(source.via)
+      flowTry.foreach(_ => println(s"Sending New York data to $destination"))
+      flowTry
+    case Array(destination, dataType, numRecords, numMonths, numClusters) if dataType == "fake" =>
+      val endDate = ZonedDateTime.now()
+      val startDate = endDate.minusMonths(numMonths.toInt)
+      val source = FakeDataSource(numRecords.toInt, startDate, endDate, numClusters.toInt, 10)
+      val flowTry = flowFromDestination(destination).map(source.via)
+      flowTry.foreach(_ => println(s"Sending Fake data to $destination"))
+      flowTry
+    case _ =>
+      Failure(CommandNotRecognized())
+  }
 
-  val kafkaSink = Producer.plainSink(producerSettings).contramap[JsObject](new ProducerRecord("rider", "", _))
+  sourceTry.foreach { source =>
+    val countSink = Sink.fold[Int, JsValue](0) { case (count, _) => count + 1 }
 
-  // drop the first row because it is the column names
-  val flow = fileSource.via(lines).drop(1).via(parser).take(numberOfRecordsToProcess).runWith(kafkaSink)
+    val flow = source.runWith(countSink)
 
-  println(s"Reading $numberOfRecordsToProcess and sending them to Kafka")
+    flow.onComplete { result =>
+      result.foreach { records => println(s"Sent $records records") }
+      system.terminate()
+    }
+  }
 
-  flow.onComplete { _ =>
-    println(s"Sent $numberOfRecordsToProcess to Kafka")
-    system.terminate()
+  sourceTry.recover {
+    case t: Throwable =>
+      println(t.getMessage)
+      t.printStackTrace()
+      system.terminate()
+  }
+
+  case class CommandNotRecognized() extends Throwable {
+    override def getMessage: String = {
+      """Command args must be either:
+        | <pio|kafka> ny <number of months> <sample rate>
+        | <pio|kafka> fake <number of records> <number of months> <number of clusters>""".stripMargin
+    }
   }
 
 }
