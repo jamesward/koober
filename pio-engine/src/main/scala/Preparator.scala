@@ -46,8 +46,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
 
     val timeToWeatherMap = trainingData.data map { trainingDataEntry =>
       (KooberUtil.normalize(trainingDataEntry.eventTime), (trainingDataEntry.temperature, trainingDataEntry.clear, trainingDataEntry.fog, trainingDataEntry.rain,
-        trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder, trainingDataEntry.tornado,
-        trainingDataEntry.heat, trainingDataEntry.windchill, trainingDataEntry.precipitation))
+        trainingDataEntry.snow, trainingDataEntry.hail, trainingDataEntry.thunder, trainingDataEntry.tornado))
     } collectAsMap()
 
     val featureVector = normalizedTimeAndLocationLabels map { entry =>
@@ -55,7 +54,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
       val denormalizedEventTime = KooberUtil.denormalize(entry._1)
       Preparator.toFeaturesVector(denormalizedEventTime, weatherDataTuple._1,
         weatherDataTuple._2, weatherDataTuple._3, weatherDataTuple._4, weatherDataTuple._5, weatherDataTuple._6,
-        weatherDataTuple._7, weatherDataTuple._8, weatherDataTuple._9, weatherDataTuple._10, weatherDataTuple._11)
+        weatherDataTuple._7, weatherDataTuple._8)
     } cache()
 
     // store them statically so that we can normalize query data during query time
@@ -67,7 +66,7 @@ class Preparator extends PPreparator[TrainingData, PreparedData] {
       val denormalizedEventTime = KooberUtil.denormalize(entry._1)
       val timeFeatureVector = Preparator.toFeaturesVector(denormalizedEventTime, weatherDataTuple._1,
         weatherDataTuple._2, weatherDataTuple._3, weatherDataTuple._4, weatherDataTuple._5, weatherDataTuple._6,
-        weatherDataTuple._7, weatherDataTuple._8, weatherDataTuple._9, weatherDataTuple._10, weatherDataTuple._11)
+        weatherDataTuple._7, weatherDataTuple._8)
       val normalizedTimeFeatureVector = Preparator.standardScalerModel.get.transform(timeFeatureVector)
       LabeledPoint(demand, Preparator.combineFeatureVectors(normalizedTimeFeatureVector, entry._2))
     } cache ()
@@ -84,7 +83,7 @@ object Preparator {
   val numOfClustersForLocationModel = 200
   val numOfIterationsForLocationModel = 100
 
-  def toFeaturesVector(eventTime: DateTime, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, heat: Double, windchill: Double, precipitation: Double): Vector = {
+  def toFeaturesVector(eventTime: DateTime, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int): Vector = {
     Vectors.dense(Array(
       eventTime.dayOfWeek().get().toDouble,
       eventTime.dayOfMonth().get().toDouble,
@@ -97,10 +96,7 @@ object Preparator {
       snow.toDouble,
       hail.toDouble,
       thunder.toDouble,
-      tornado.toDouble,
-      heat,
-      windchill,
-      precipitation
+      tornado.toDouble
     ))
   }
 
