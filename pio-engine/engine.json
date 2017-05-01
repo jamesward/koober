@@ -26,12 +26,12 @@
         }
       },
       {
-        "name": "multinomialLogistic",
+        "name": "ridgeRegression",
         "params": {
-        "iterations": 4096,
-        "numClasses" : 200,
-        "regParam" : 0.5,
-        "convergenceTol": 0.01
+          "iterations": 1000,
+          "miniBatchFraction" : 1.0,
+          "regParam" : 0.5,
+          "stepSize": 0.01
         }
       }
   ]
