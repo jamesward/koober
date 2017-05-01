@@ -9,7 +9,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css" rel="stylesheet" type="text/css"/>
     <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.css" rel="stylesheet" type="text/css"/>
     <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
-        <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.js"></script>
     <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" charset="utf-8"></script>
     <script src="@routes.Assets.versioned("prediction.js")"></script>
@@ -49,13 +49,13 @@
                 <div class="card-divider"></div>
                 <div id="date-field" class="input-field">
                     <div class="input-field-icon">
-                        <img src="../assets/DateIcon.png" alt="date">
+                        <img src="@routes.Assets.versioned("DateIcon.png")" alt="date">
                     </div>
                     <input id="date-select" type="date">
                 </div>
                 <div id="time-field" class="input-field">
                     <div class="input-field-icon">
-                        <img src="../assets/TimeIcon.png" alt="time">
+                        <img src="@routes.Assets.versioned("TimeIcon.png")" alt="time">
                     </div>
                     <input id="time-select" type="time">
                 </div>
@@ -65,15 +65,39 @@
                 <div class="card-divider"></div>
                 <div id="latitude-field" class="input-field">
                     <div class="input-field-icon">
-                        <img src="../assets/LatitudeIcon.png" alt="latitude">
+                        <img src="@routes.Assets.versioned("LatitudeIcon.png")" alt="latitude">
                     </div>
                     <input id="latitude-input" type="text" placeholder="Latitude" required title="Enter a latitude!"><br>
                 </div>
                 <div id="longitude-field" class="input-field">
                     <div class="input-field-icon">
-                        <img src="../assets/LongitudeIcon.png" alt="longitude">
+                        <img src="@routes.Assets.versioned("LongitudeIcon.png")" alt="longitude">
                     </div>
                     <input id="longitude-input" type="text" placeholder="Longitude" required title="Enter a longitude!"><br>
+                </div>
+            </div>
+            <div id="weather-card" class="dashboard-card">
+                <h2 class="card-title">Weather</h2>
+                <div class="card-divider"></div>
+                <div id="temperature-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="@routes.Assets.versioned("TemperatureIcon.png")" alt="temperature">
+                    </div>
+                    <input id="temperature-input" type="text" placeholder="20" required title="Enter a Temperature!"><br>
+                </div>
+                <div id="weather-field" class="input-field">
+                    <div class="input-field-icon">
+                        <img src="@routes.Assets.versioned("WeatherIcon.png")" alt="weather">
+                    </div>
+                    <select id="weather-select" required title="Choose as weather!">
+                        <option selected="selected" value="0">Clear</option>
+                        <option value="1">Fog</option>
+                        <option value="2">Rain</option>
+                        <option value="3">Snow</option>
+                        <option value="4">Hail</option>
+                        <option value="5">Thunder</option>
+                        <option value="6">Tornado</option>
+                    </select>
                 </div>
             </div>
             <div id="algorithm-card" class="dashboard-card">
@@ -81,7 +105,7 @@
                 <div class="card-divider"></div>
                 <div id="algorithm-field" class="input-field">
                     <div class="input-field-icon">
-                        <img src="../assets/AlgorithmIcon.png" alt="algorithm">
+                        <img src="@routes.Assets.versioned("AlgorithmIcon.png")" alt="algorithm">
                     </div>
                     <select id="algorithm-select" required title="Choose an algorithm to use!">
                         <option selected="selected" value="0">Gradient Boosted Trees</option>
