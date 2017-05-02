@@ -8,50 +8,50 @@ import org.apache.spark.mllib.clustering.KMeansModel
 import org.apache.spark.mllib.feature.StandardScalerModel
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.optimization.SquaredL2Updater
-import org.apache.spark.mllib.regression.{LinearRegressionModel, LinearRegressionWithSGD}
+import org.apache.spark.mllib.regression.{RidgeRegressionModel, RidgeRegressionWithSGD, LinearRegressionModel, LinearRegressionWithSGD}
 import org.joda.time.DateTime
 
-case class LogisticParams(
-  iterations:        Int    = 4096,
-  numClasses:          Int = 200,
-  convergenceTol:      Double = 0.01,
-  regParam:          Double = 0.5
+case class RidgeRegressionParams(
+    iterations:        Int    = 1000,
+    regParam:          Double = 0.5,
+    miniBatchFraction: Double = 1.0,
+    stepSize:          Double = 0.01
 ) extends Params
 
-class MultinomialLogisticRegressionAlgorithm(val ap: LogisticParams)
-  extends P2LAlgorithm[PreparedData, LogisticModel, Query, PredictedResult] with MyQuerySerializer {
+class RidgeRegressionAlgorithm(val ap: RidgeRegressionParams)
+  extends P2LAlgorithm[PreparedData, RidgeRegressionAlgorithmModel, Query, PredictedResult] with MyQuerySerializer {
 
   @transient lazy val logger = Logger[this.type]
 
-  def train(sc: SparkContext, preparedData: PreparedData): LogisticModel = {
-    val logisticRegression = new LogisticRegressionWithLBFGS()
+  def train(sc: SparkContext, preparedData: PreparedData): RidgeRegressionAlgorithmModel = {
+//    val logisticRegression = new LogisticRegressionWithLBFGS()
+    val ridgeRegressionWithSGD = new RidgeRegressionWithSGD();
 
-    logisticRegression.setIntercept(true)
-    logisticRegression.setValidateData(true)
-    logisticRegression.setNumClasses(ap.numClasses) // Need to change when we have higher variations of demand levels
-    logisticRegression.optimizer
+    ridgeRegressionWithSGD.setIntercept(true)
+    ridgeRegressionWithSGD.setValidateData(true)
+    ridgeRegressionWithSGD.optimizer
       .setNumIterations(ap.iterations)
-      .setConvergenceTol(ap.convergenceTol)
-      .setUpdater(new SquaredL2Updater())
+      .setMiniBatchFraction(ap.miniBatchFraction)
+      .setStepSize(ap.stepSize)
       .setRegParam(ap.regParam)
 
 // We can use the following sampling to reduce training set by sampling or increase training set by bootstrap
 //    val sample = preparedData.data.sample(true, 0.01).cache();
 //    sample.foreach(println)
 
-    val logisticRegressionModel = logisticRegression.run(preparedData.data)
+    val ridgeRegressionModel = ridgeRegressionWithSGD.run(preparedData.data)
 //    println(logisticRegressionModel.intercept)
 //    println(logisticRegressionModel.weights)
-    new LogisticModel(logisticRegressionModel, Preparator.locationClusterModel.get, Preparator.standardScalerModel.get)
+    new RidgeRegressionAlgorithmModel(ridgeRegressionModel, Preparator.locationClusterModel.get, Preparator.standardScalerModel.get)
   }
 
-  def predict(model: LogisticModel, query: Query): PredictedResult = {
+  def predict(model: RidgeRegressionAlgorithmModel, query: Query): PredictedResult = {
     val label : Double = model.predict(query)
     new PredictedResult(label)
   }
 }
 
-class LogisticModel(mod: LogisticRegressionModel, locationClusterModel: KMeansModel, standardScalerModel: StandardScalerModel) extends Serializable {
+class RidgeRegressionAlgorithmModel(mod: RidgeRegressionModel, locationClusterModel: KMeansModel, standardScalerModel: StandardScalerModel) extends Serializable {
   @transient lazy val logger = Logger[this.type]
 
   def predict(query: Query): Double = {

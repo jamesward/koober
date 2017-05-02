@@ -52,8 +52,9 @@ object EngineParamsList extends EngineParamsGenerator {
       )),
     baseEP.copy(
       algorithmParamsList = Seq(
-        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 200, convergenceTol = 0.01, regParam = 0.5)),
-        ("multinomialLogistic", LogisticParams(iterations = 4096, numClasses = 200, convergenceTol = 0.01, regParam = 0.5))
+        ("ridgeRegression", RidgeRegressionParams(iterations = 1000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 0.5)),
+        ("ridgeRegression", RidgeRegressionParams(iterations = 5000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 0.5)),
+        ("ridgeRegression", RidgeRegressionParams(iterations = 5000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 1.0))
       ))
   )
 }
