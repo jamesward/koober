@@ -33,6 +33,14 @@
           "regParam" : 0.5,
           "stepSize": 0.01
         }
+      },
+      {
+        "name": "randomForest",
+        "params": {
+          "numTrees": 10,
+          "maxDepth": 10,
+          "numBins": 32
+        }
       }
   ]
 }

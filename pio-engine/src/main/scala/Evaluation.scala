@@ -55,6 +55,12 @@ object EngineParamsList extends EngineParamsGenerator {
         ("ridgeRegression", RidgeRegressionParams(iterations = 1000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 0.5)),
         ("ridgeRegression", RidgeRegressionParams(iterations = 5000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 0.5)),
         ("ridgeRegression", RidgeRegressionParams(iterations = 5000, miniBatchFraction = 1.0, stepSize = 0.01, regParam = 1.0))
+      )),
+    baseEP.copy(
+      algorithmParamsList = Seq(
+        ("randomForest", ForestParams(numTrees = 10, maxDepth = 10, numBins = 32)),
+        ("randomForest", ForestParams(numTrees = 30, maxDepth = 20, numBins = 32)),
+        ("randomForest", ForestParams(numTrees = 100, maxDepth = 30, numBins = 64))
       ))
   )
 }
