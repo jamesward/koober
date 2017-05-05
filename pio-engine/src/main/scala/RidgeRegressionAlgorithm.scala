@@ -47,7 +47,7 @@ class RidgeRegressionAlgorithm(val ap: RidgeRegressionParams)
 
   def predict(model: RidgeRegressionAlgorithmModel, query: Query): PredictedResult = {
     val label : Double = model.predict(query)
-    new PredictedResult(label)
+    new PredictedResult(label, Map("ridgeRegression" -> label))
   }
 }
 

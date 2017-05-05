@@ -6,15 +6,18 @@ class Serving extends LServing[Query, PredictedResult] {
 
   override def serve(query: Query,
                      predictedResults: Seq[PredictedResult]): PredictedResult = {
-    println(predictedResults.length)
-    println(predictedResults.head.demand)
-    println(predictedResults.last.demand)
-    var sumResult:Double = 0.0
-    predictedResults.foreach(sumResult += _.demand)
 
-    //val sumResult: Double = predictedResults.foldLeft(0.0){( acc: Double, pred: PredictedResult) => acc + pred.demand}
-    println(sumResult)
-    val meanResult: Double = sumResult / predictedResults.length
-    new PredictedResult(meanResult)
+    val algorithms : Map[String, Double] = predictedResults.foldLeft(Map.empty[String, Double]) {
+      (acc: Map[String, Double], pred: PredictedResult) =>
+        (acc.keySet ++ pred.algorithms.keySet).map(i=>
+          (i, acc.getOrElse(i, 0.0) + pred.algorithms.getOrElse(i,0.0))).toMap
+    }
+
+    val demand = predictedResults.foldLeft(0.0) {
+      (acc : Double, pred: PredictedResult) =>
+        acc + pred.demand
+    }
+
+    new PredictedResult(demand / predictedResults.length, algorithms)
   }
 }
