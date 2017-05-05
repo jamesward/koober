@@ -9,7 +9,8 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PredictionIO {
-  def predict(eventTime: DateTime): Future[JsValue]
+    def predict(json: JsValue) : Future[JsValue]
+
 }
 
 @Singleton
@@ -17,16 +18,11 @@ class PredictionIOImpl @Inject() (configuration: Configuration, wsClient: WSClie
 
   val predictionIOUrl = configuration.getString("predictionio.url").get
 
-  override def predict(eventTime: DateTime): Future[JsValue] = {
-
-    wsClient.url(predictionIOUrl).get().map { response =>
-      // TODO: use actual PIO data
-      // response.json
-
-      Json.obj(
-        "demand" -> 10
-      )
-    }
+  override def predict(json: JsValue) : Future[JsValue] = {
+    wsClient.url(predictionIOUrl).post(json)
+      .map { response =>
+        response.json
+      }
   }
-
 }
+

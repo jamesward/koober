@@ -4,7 +4,7 @@ import javax.inject._
 
 import org.joda.time.DateTime
 import play.api.Configuration
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.{Json, JsValue, Reads, Writes}
 import play.api.mvc.{Action, Controller}
 import services.PredictionIO
 
@@ -53,18 +53,47 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
   }
 
   // todo: input checking and error handling
-  def predict = Action.async(parse.json) { request =>
-    val eventTime = (request.body \ "eventTime").as[DateTime]
+  def predict(eventTime: String, lat: Double, lng: Double, temperature: Double,
+              clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int) = Action.async {
 
-    predictionIO.predict(eventTime).map { json =>
-      Ok(json)
+    var lngLatArray = makeCluster(lat, lng)
+
+    val resultSeq = (0 to (lngLatArray(0).length - 1)).map(i => {
+      var query = Json.obj(
+        "eventTime" -> eventTime,
+        "lat" -> lngLatArray(0)(i),
+        "lng" -> lngLatArray(1)(i),
+        "temperature" -> temperature,
+        "clear" -> clear,
+        "fog" -> fog,
+        "rain" -> rain,
+        "snow" -> snow,
+        "hail" -> hail,
+        "thunder" -> thunder,
+        "tornado" -> tornado
+      )
+      var prediction = predictionIO.predict(query)
+      prediction.map { json => toGeoJson2(json, lngLatArray(0)(i), lngLatArray(1)(i), i) }
+
+    })
+
+    var result = Future.sequence(resultSeq)
+    result.map { r => Ok(toGeoJsonCollection(r))
     }
   }
 
-  def fakePredict = Action {
-    Ok(
-      Json.obj(
-        "demand" -> Random.nextInt()
+  private def toGeoJson2(json: JsValue, lat: Double, lon: Double, id: Int) = {
+    var demand = (json \ "demand").as[Double]
+
+    Json.obj(
+      "type" -> "Feature",
+      "properties" -> Json.obj(
+        "Primary ID" -> id,
+        "demand" -> demand
+      ),
+      "geometry" -> Json.obj(
+        "type" -> "Point",
+        "coordinates" -> Json.arr(lon, lat)
       )
     )
   }
@@ -80,6 +109,13 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
         "type" -> "Point",
         "coordinates" -> Json.arr(lon, lat)
       )
+    )
+  }
+
+  private def toGeoJsonCollection(demands: IndexedSeq[JsValue]) = {
+    Json.obj(
+      "type" -> "FeatureCollection",
+      "features" -> demands
     )
   }
 
@@ -102,6 +138,13 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
         "features" -> points
       )
     )
+  }
+
+
+  def makeCluster(lat:Double, lng:Double) : Array[Array[Double]] = {
+    var lats = Array(lat, lat + 2*0.0016, lat + 0.0016, lat + 0.0016, lat + 0.0016, lat, lat, lat, lat, lat - 0.0016, lat - 0.0016, lat - 0.0016, lat - 2*0.0016)
+    var lngs = Array(lng, lng, lng - 0.0016, lng, lng + 0.0016, lng - 2*0.0016, lng - 0.0016, lng + 0.0016, lng + 2*0.0016, lng - 0.0016, lng, lng + 0.0016, lng)
+    Array(lats, lngs)
   }
 
 }
