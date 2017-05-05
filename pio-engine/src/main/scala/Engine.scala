@@ -19,7 +19,8 @@ class Query(
 ) extends Serializable
 
 class PredictedResult(
-                       val demand: Double
+                       val demand: Double,
+                       val algorithms: Map[String, Double]
                      ) extends Serializable
 
 class ActualResult(

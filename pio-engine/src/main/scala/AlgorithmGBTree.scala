@@ -34,7 +34,7 @@ class AlgorithmGBTree(val ap: GBTreeParams)
 
   override def predict(model: ModelGBTree, query: Query): PredictedResult = {
     val label : Double = model.predict(query)
-    new PredictedResult(label)
+    new PredictedResult(label, Map("algGBTree" -> label))
   }
 }
 

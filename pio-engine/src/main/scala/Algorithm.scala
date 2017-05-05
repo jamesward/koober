@@ -38,7 +38,7 @@ class Algorithm(val ap: AlgorithmParams)
 
   def predict(model: Model, query: Query): PredictedResult = {
     val label : Double = model.predict(query)
-    new PredictedResult(label)
+    new PredictedResult(label, Map("algRegression" -> label))
   }
 }
 
