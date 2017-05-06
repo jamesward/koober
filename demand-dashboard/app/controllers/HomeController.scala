@@ -82,6 +82,49 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
     }
   }
 
+  def analyze(algorithm: String, eventTime: String, coordinates: String) = Action.async {
+
+    // TODO: Load real weather data based on time
+    var coordinatesData = deserializeCoordinatesData(coordinates)
+    val resultSeq = (0 to (coordinatesData.length - 1)).map(i => {
+      var query = Json.obj(
+        "eventTime" -> eventTime,
+        "lat" -> coordinatesData(i)(0),
+        "lng" -> coordinatesData(i)(1),
+        "temperature" -> 20,
+        "clear" -> 1,
+        "fog" -> 0,
+        "rain" -> 0,
+        "snow" -> 0,
+        "hail" -> 0,
+        "thunder" -> 0,
+        "tornado" -> 0
+      )
+      var prediction = predictionIO.predict(query)
+      prediction.map { json => toGeoJsonForAlg(algorithm, json, coordinatesData(i)(1), coordinatesData(i)(0), i) }
+    })
+
+    var result = Future.sequence(resultSeq)
+    result.map { r => Ok(toGeoJsonCollection(r))
+    }
+  }
+
+  private def toGeoJsonForAlg(algorithm: String, json: JsValue, lat: Double, lon: Double, id: Int) = {
+    var demand = (json \ "algorithms" \ algorithm).as[Double]
+
+    Json.obj(
+      "type" -> "Feature",
+      "properties" -> Json.obj(
+        "Primary ID" -> id,
+        "demand" -> demand
+      ),
+      "geometry" -> Json.obj(
+        "type" -> "Point",
+        "coordinates" -> Json.arr(lon, lat)
+      )
+    )
+  }
+
   private def toGeoJson2(json: JsValue, lat: Double, lon: Double, id: Int) = {
     var demand = (json \ "demand").as[Double]
 
@@ -145,6 +188,19 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
     var lats = Array(lat, lat + 2*0.0016, lat + 0.0016, lat + 0.0016, lat + 0.0016, lat, lat, lat, lat, lat - 0.0016, lat - 0.0016, lat - 0.0016, lat - 2*0.0016)
     var lngs = Array(lng, lng, lng - 0.0016, lng, lng + 0.0016, lng - 2*0.0016, lng - 0.0016, lng + 0.0016, lng + 2*0.0016, lng - 0.0016, lng, lng + 0.0016, lng)
     Array(lats, lngs)
+  }
+
+  def deserializeCoordinatesData(coordinates:String): Array[Array[Double]] = {
+    var tokens = coordinates.substring(2, coordinates.length-2).split("\\],\\[")
+    var coordinatesArray:Array[Array[String]] = tokens.map(_.split(',')).toArray
+    var coordinatesData = coordinatesArray.map( _.map { tmp =>
+      try {
+        tmp.toDouble
+      } catch {
+        case _: NumberFormatException => 1.0
+      }
+    })
+    coordinatesData
   }
 
 }
