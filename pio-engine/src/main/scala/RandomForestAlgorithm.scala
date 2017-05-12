@@ -29,7 +29,7 @@ class RandomForestAlgorithm(val fp: ForestParams)
 
   def predict(model: ForestModel, query: Query): PredictedResult = {
     val label : Double = model.predict(query)
-    new PredictedResult(label)
+    new PredictedResult(label, Map("randomForest" -> label))
   }
 }
 
