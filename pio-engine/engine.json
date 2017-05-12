@@ -11,8 +11,8 @@
       {
         "name": "algGBTree",
         "params": {
-        "iterations": 100,
-        "maxDepth": 10
+        "iterations": 200,
+        "maxDepth": 4
         }
       }
       ,
@@ -21,15 +21,15 @@
         "params": {
         "iterations": 500,
         "miniBatchFraction" : 0.5,
-        "regParam" : 0.0,
+        "regParam" : 0.5,
         "stepSize": 0.01
         }
       },
       {
         "name": "ridgeRegression",
         "params": {
-          "iterations": 1000,
-          "miniBatchFraction" : 1.0,
+          "iterations": 500,
+          "miniBatchFraction" : 0.5,
           "regParam" : 0.5,
           "stepSize": 0.01
         }
@@ -37,9 +37,9 @@
       {
         "name": "randomForest",
         "params": {
-          "numTrees": 10,
-          "maxDepth": 10,
-          "numBins": 32
+          "numTrees": 4,
+          "maxDepth": 8,
+          "numBins": 10
         }
       }
   ]
