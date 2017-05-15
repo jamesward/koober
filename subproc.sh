@@ -36,9 +36,9 @@ if [ "$SUB_APP" = "pio-engine" ]; then
     # extract the path (if any)
     path="`echo $url | grep / | cut -d/ -f2-`"
 
-    echo "PIO_STORAGE_SOURCES_PGSQL_URL=jdbc:postgresql://$hostport/$path" >> conf/pio-env.sh
-    echo "PIO_STORAGE_SOURCES_PGSQL_USERNAME=$user" >> conf/pio-env.sh
-    echo "PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$pass" >> conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_PGSQL_URL=jdbc:postgresql://$hostport/$path" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_PGSQL_USERNAME=$user" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$pass" >> $PIO_HOME/conf/pio-env.sh
   fi
 
   $PIO_HOME/bin/pio deploy --port $PORT
