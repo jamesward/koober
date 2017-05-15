@@ -47,10 +47,16 @@ if [ "$SUB_APP" = "pio-engine" ]; then
 
   $PIO_HOME/bin/pio build --clean
 
-  if [ "$PORT" = "" ]; then
-    $PIO_HOME/bin/pio deploy
-  else
-    $PIO_HOME/bin/pio deploy --port $PORT
+  if [ "$1" = "web" ]; then
+    if [ "$PORT" = "" ]; then
+      $PIO_HOME/bin/pio deploy
+    else
+      $PIO_HOME/bin/pio deploy --port $PORT
+    fi
+  fi
+
+  if [ "$1" = "train" ]; then
+    $PIO_HOME/bin/pio train
   fi
 
 fi
