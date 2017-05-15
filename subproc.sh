@@ -1,14 +1,16 @@
 #!/bin/bash
 
 if [ "$SUB_APP" = "pio-engine" ]; then
-  echo "Downloading PredictionIO"
-  wget https://${BUCKETEER_BUCKET_NAME}.s3.amazonaws.com/public/PredictionIO-0.11.0-incubating.zip
-  echo "Unzipping"
-  unzip PredictionIO-0.11.0-incubating.zip
-  PIO_HOME=~/PredictionIO-0.11.0-incubating
-  cd pio-engine
 
-  if [[ -v DATABASE_URL ]]; then
+  if [ "$PIO_HOME" = "" ]; then
+    echo "Downloading PredictionIO"
+    wget https://${BUCKETEER_BUCKET_NAME}.s3.amazonaws.com/public/PredictionIO-0.11.0-incubating.zip
+    echo "Unzipping"
+    unzip PredictionIO-0.11.0-incubating.zip
+    PIO_HOME=~/PredictionIO-0.11.0-incubating
+  fi
+
+  if [ "$DATABASE_URL" != "" ]; then
     # from: http://stackoverflow.com/a/17287984/77409
     # extract the protocol
     proto="`echo $DATABASE_URL | grep '://' | sed -e's,^\(.*://\).*,\1,g'`"
@@ -41,5 +43,12 @@ if [ "$SUB_APP" = "pio-engine" ]; then
     echo "PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$pass" >> $PIO_HOME/conf/pio-env.sh
   fi
 
-  $PIO_HOME/bin/pio deploy --port $PORT
+  cd pio-engine
+
+  if [ "$PORT" = "" ]; then
+    $PIO_HOME/bin/pio deploy
+  else
+    $PIO_HOME/bin/pio deploy --port $PORT
+  fi
+
 fi
