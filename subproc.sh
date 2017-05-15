@@ -45,6 +45,8 @@ if [ "$SUB_APP" = "pio-engine" ]; then
 
   cd pio-engine
 
+  $PIO_HOME/bin/pio build --clean
+
   if [ "$PORT" = "" ]; then
     $PIO_HOME/bin/pio deploy
   else
