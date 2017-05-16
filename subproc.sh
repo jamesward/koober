@@ -43,6 +43,17 @@ if [ "$SUB_APP" = "pio-engine" ]; then
     echo "PIO_STORAGE_SOURCES_PGSQL_PASSWORD=$pass" >> $PIO_HOME/conf/pio-env.sh
   fi
 
+  if [ "$BUCKETEER_AWS_ACCESS_KEY_ID" != "" ]; then
+    echo "PIO_STORAGE_REPOSITORIES_MODELDATA_SOURCE=S3" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_S3_TYPE=s3" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_S3_ACCESS_KEY_ID=${BUCKETEER_AWS_ACCESS_KEY_ID}" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_S3_SECRET_ACCESS_KEY=${BUCKETEER_AWS_SECRET_ACCESS_KEY}" >> $PIO_HOME/conf/pio-env.sh
+    echo "PIO_STORAGE_SOURCES_S3_BUCKET_NAME=${BUCKETEER_BUCKET_NAME}" >> $PIO_HOME/conf/pio-env.sh
+  fi
+
+  mkdir $PIO_HOME/plugins
+  cp pio-s3/target/scala-2.11/pio-s3.jar $PIO_HOME/plugins
+
   cd pio-engine
 
   if [ "$1" = "web" ]; then
