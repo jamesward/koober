@@ -8,3 +8,5 @@ libraryDependencies ++= Seq(
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
 
 assemblyJarName in assembly := "pio-s3.jar"
+
+stage := assembly.value
