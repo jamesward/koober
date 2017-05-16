@@ -28,4 +28,4 @@ lazy val demandDashboard = (project in file("demand-dashboard")).settings(common
 
 lazy val pioS3 = (project in file("pio-s3")).settings(commonSettings: _*)
 
-val stage = taskKey[Unit]("Stage task").dependsOn(assembly)
+lazy val root = (project in file(".")).aggregate(pioS3)
