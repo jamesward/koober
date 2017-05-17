@@ -5,28 +5,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Analysis Dashboard</title>
-    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
-    <link href="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.css")">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css' rel='stylesheet' />
     <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.css" rel="stylesheet" type="text/css"/>
-    <script src="@routes.Assets.versioned("lib/jquery/jquery.min.js")"></script>
-        <script src="https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js"></script>
+    <link href='//mapbox.com/base/latest/base.css' rel='stylesheet' />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" rel="stylesheet">
+    <link rel="stylesheet" href="@routes.Assets.versioned("main.css")">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js'></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.2/mapbox-gl-directions.js"></script>
     <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.0/turf.min.js" charset="utf-8"></script>
+    <script src="@routes.Assets.versioned("koober-training.js")"></script>
     <script src="@routes.Assets.versioned("analysis.js")"></script>
-
-    <!-- jQuery UI Slider -->
-
-    <script src="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.js")"></script>
-    <link rel="stylesheet" href="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.css")">
-    <link href='//mapbox.com/base/latest/base.css' rel='stylesheet' />
-    <script src="@routes.Assets.versioned("lib/jquery-ui/jquery-ui.min.js")"></script>
 
     <script>
         mapboxgl.accessToken = '@mapboxAccessToken';
 
         $(function(){
             $(".dashboard-section-header-container").load("@routes.HomeController.dashboardSectionHeader()");
-            $( "#date-slider" ).slider();
             $( "#time-slider" ).slider();
         });
     </script>
@@ -63,10 +64,13 @@
             <div id="datetime-slider-card" class="dashboard-card">
                 <h2 class="card-title">Datetime</h2>
                 <div class="card-divider"></div>
-                <div id="date-slider-field" class="datetime-slider-field">
-                    <div class="slider-title">Date:</div>
-                    <div id="date-slider-value" class="slider-value">6/1/2017</div>
-                    <input id="date-slider" class="datetime-slider" type='range' min='1' max='31' step='1' value='0'></input>
+                <div class="form-group">
+                    <div class='input-group date'>
+                        <input id='datetimepicker' type='text' class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
                 </div>
                 <div id="time-slider-field" class="datetime-slider-field">
                     <div class="slider-title">Time:</div>
@@ -91,10 +95,10 @@
                 <div class="card-divider"></div>
                 <div id="linear-regression-map" class="map"></div>
             </div>
-            <div id="multinomial-logical-regression-card" class="dashboard-card">
-                <h2 class="card-title">Multinomial Logical Regression</h2>
+            <div id="ridge-regression-card" class="dashboard-card">
+                <h2 class="card-title">Ridge Regression</h2>
                 <div class="card-divider"></div>
-                <div id="multinomial-logical-regression-map" class="map"></div>
+                <div id="ridge-regression-map" class="map"></div>
             </div>
             <div id="neural-network-card" class="dashboard-card">
                 <h2 class="card-title">Neural Network</h2>
