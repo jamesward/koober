@@ -45,12 +45,14 @@ if [ "$SUB_APP" = "pio-engine" ]; then
 
   cd pio-engine
 
-  echo "Temporarily bind port $PORT to avoid Heroku boot timeout"
+  if [ "$1" = "web" ]; then
+    echo "Temporarily bind port $PORT to avoid Heroku boot timeout"
 
-  mkdir tmp
-  pushd tmp
-    python -m SimpleHTTPServer $PORT > /dev/null & echo $! > pid
-  popd
+    mkdir tmp
+    pushd tmp
+      python -m SimpleHTTPServer $PORT > /dev/null & echo $! > pid
+    popd
+  fi
 
   $PIO_HOME/bin/pio build
 
@@ -70,5 +72,6 @@ if [ "$SUB_APP" = "pio-engine" ]; then
   if [ "$1" = "train" ]; then
     $PIO_HOME/bin/pio train
   fi
-
+elif [ "$SUB_APP" = "demand-dashboard" ]; then
+  demand-dashboard/target/universal/stage/bin/demand-dashboard -Dhttp.port=${PORT}
 fi
