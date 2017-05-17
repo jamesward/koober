@@ -10,7 +10,7 @@ GET     /documentation/models            controllers.HomeController.documentatio
 GET     /dashboard/header                controllers.HomeController.dashboardSectionHeader
 GET     /dashboard/analysis              controllers.HomeController.dashboardAnalysis
 GET     /dashboard/prediction            controllers.HomeController.dashboardPrediction
-GET    /predict                         controllers.HomeController.predict(eventTime: String, lat: Double, lng: Double, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int)
+GET     /predict                         controllers.HomeController.predict(eventTime: String, lat: Double, lng: Double, temperature: Double, clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, algorithm: Int)
 GET     /analyze                         controllers.HomeController.analyze(algorithm: String, eventTime: String, coordinates: String)
 GET     /demand                          controllers.HomeController.demand(lng: Double, lat: Double)
 GET     /assets/*file                    controllers.Assets.versioned(path="/public", file)

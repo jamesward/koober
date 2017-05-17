@@ -54,7 +54,7 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
 
   // todo: input checking and error handling
   def predict(eventTime: String, lat: Double, lng: Double, temperature: Double,
-              clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int) = Action.async {
+              clear: Int, fog: Int, rain: Int, snow: Int, hail: Int, thunder: Int, tornado: Int, algorithm:Int) = Action.async {
 
     var lngLatArray = makeCluster(lat, lng)
 
@@ -73,8 +73,7 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
         "tornado" -> tornado
       )
       var prediction = predictionIO.predict(query)
-      prediction.map { json => toGeoJson2(json, lngLatArray(0)(i), lngLatArray(1)(i), i) }
-
+      prediction.map { json => toGeoJson2(json, lngLatArray(0)(i), lngLatArray(1)(i), i, algorithm) }
     })
 
     var result = Future.sequence(resultSeq)
@@ -84,7 +83,6 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
 
   def analyze(algorithm: String, eventTime: String, coordinates: String) = Action.async {
 
-    // TODO: Load real weather data based on time
     var coordinatesData = deserializeCoordinatesData(coordinates)
     val resultSeq = (0 to (coordinatesData.length - 1)).map(i => {
       var query = Json.obj(
@@ -125,8 +123,16 @@ class HomeController @Inject() (configuration: Configuration, predictionIO: Pred
     )
   }
 
-  private def toGeoJson2(json: JsValue, lat: Double, lon: Double, id: Int) = {
+  private def toGeoJson2(json: JsValue, lat: Double, lon: Double, id: Int, alg: Int) = {
     var demand = (json \ "demand").as[Double]
+    alg match {
+      case 0 => demand = (json \ "demand").as[Double]
+      case 1 => demand = (json \ "algorithms" \"algGBTree").as[Double]
+      case 2 => demand = (json \ "algorithms" \"algRegression").as[Double]
+      case 3 => demand = (json \ "algorithms" \"ridgeRegression").as[Double]
+      case 4 => demand = (json \ "algorithms" \"randomForest").as[Double]
+      case default => demand = (json \ "demand").as[Double]
+    }
 
     Json.obj(
       "type" -> "Feature",

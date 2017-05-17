@@ -28,30 +28,28 @@
 
     <div class="documentation-body">
         <div class="subsection">
-            <h1>Gradient Boosted Trees</h1>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+            <h1>Gradient-Boosted Trees</h1>
+            <p>Gradient Boosted Trees is a prediction model that consists of a set of numerous decision produced in sequence. The set is produced iteratively by using the current ensemble of trees to predict values for the training data and comparing these predictions against the actual values. Based on the differences in predicted and actual values, a new tree is added to the ensemble to reduce the error. Gradient-Boosted Trees tend to have high bias but low variance.</p>
         </div>
         <div class="divider"></div>
         <div class="subsection">
-            <h1>Linear Regression with SGD</h1>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+            <h1>Linear Regression with Stochastic Gradient Descent</h1>
+            <p>Linear Regression is a prediction model in which the output is a linear combination of the inputs. Each of the one or more inputs, such as time or weather in the case of Koober, is assigned a weight in a linear regression such that the resulting function, a sum of the inputs' weights and values, is a line that best fits the training data. Stochastic Gradient Descent, or SGD, is a method that optimizes the regression by iteratively modifying the equation based on its gradient.</p>
         </div>
-
-        <div class="divider"></div>
-        <div class="subsection">
-            <h1>Multinomial Logical Regression</h1>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
-        </div>
-
         <div class="divider"></div>
         <div class="subsection">
             <h1>Neural Network</h1>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+            <p>Neural network is a prediction model that attempts to mimic the structure of biological brains in order to learn from provided data. A neural network contains many small units called neurons. Each neuron has an activation strength and a number of other neurons that it is connected to. If the combined strength of incoming signals is large enough, the neuron will activate and send a signal to other neurons that it is connected to. The network is trained in an interative process called back propogation; some input is given to the input layer of the network, and the output layer is then read and compared against the actual value for the given input. The neurons are assigned error values, which correspond to their contribution to the output, and the error values are propogation back through the network. These error values are used to calculate a gradient for the network, which can then be used to correct the network via Stochastic Gradient Descent.</p>
         </div>
         <div class="divider"></div>
         <div class="subsection">
             <h1>Random Forest</h1>
-            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</p>
+            <p>Random Forest is a prediction model that consists of a set of numerous decision trees produced in parallel. Each decision tree uses a random subset of the provided training data, making each tree unique. To predict an output, each decision tree gives a prediction, and the mean of these predictions is the prediction of the random forest. Random forests tend to have high variance but low</p>
+        </div>
+        <div class="divider"></div>
+        <div class="subsection">
+            <h1>Ridge Regression</h1>
+            <p>Ridge Regression is a prediction model that functions very similarly to linear regression, in that it models the output as a linear combination of the inputs. However, it differs from linear regression by atttempting to minimize the coefficient values themselves in addition to the error of the predicted values. The result is a model that has, compared to an equivalent linear regression, more bias but less variance.</p>
         </div>
     </div>
 </body>
