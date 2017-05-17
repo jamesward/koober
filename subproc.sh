@@ -64,8 +64,6 @@ if [ "$SUB_APP" = "pio-engine" ]; then
     popd
   fi
 
-  $PIO_HOME/bin/pio build
-
   if [ "$1" = "web" ]; then
     echo "Build finished. Cleaning up the temporary port bind"
     cat tmp/pid | xargs kill -9
@@ -80,6 +78,7 @@ if [ "$SUB_APP" = "pio-engine" ]; then
   fi
 
   if [ "$1" = "train" ]; then
+    $PIO_HOME/bin/pio build
     $PIO_HOME/bin/pio train
   fi
 elif [ "$SUB_APP" = "demand-dashboard" ]; then
