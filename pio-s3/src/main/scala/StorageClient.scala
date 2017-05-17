@@ -6,6 +6,8 @@ import org.apache.predictionio.data.storage.{BaseStorageClient, StorageClientCon
 class StorageClient(val config: StorageClientConfig) extends BaseStorageClient with Logging {
   override val prefix = "S3"
 
+  println(config.properties)
+
   private val accessKeyId = config.properties("ACCESS_KEY_ID")
   private val secretAccessKey = config.properties("SECRET_ACCESS_KEY")
 

@@ -7,7 +7,11 @@ import scala.io.Source
 
 class S3Models(s3: S3, config: StorageClientConfig, prefix: String) extends Models with Logging {
 
+  println(s3, config.properties)
+
   private val s3Bucket = s3.bucket(config.properties("BUCKET_NAME")).get
+
+  println(s3Bucket)
 
   def insert(model: Model): Unit = {
     val objectMetadata = new ObjectMetadata()
