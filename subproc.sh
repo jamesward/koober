@@ -45,9 +45,21 @@ if [ "$SUB_APP" = "pio-engine" ]; then
 
   cd pio-engine
 
-  $PIO_HOME/bin/pio build --clean
+  echo "Temporarily bind port $PORT to avoid Heroku boot timeout"
+
+  mkdir tmp
+  pushd tmp
+    python -m SimpleHTTPServer $PORT > /dev/null & echo $! > pid
+  popd
+
+  $PIO_HOME/bin/pio build
+
+  echo "Build finished. Cleaning up the temporary port bind"
+  cat tmp/pid | xargs kill -9
+  rm -r tmp/
 
   if [ "$1" = "web" ]; then
+    echo "Starting the PredictionIO Service"
     if [ "$PORT" = "" ]; then
       $PIO_HOME/bin/pio deploy
     else
