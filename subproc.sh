@@ -56,11 +56,11 @@ if [ "$SUB_APP" = "pio-engine" ]; then
 
   $PIO_HOME/bin/pio build
 
-  echo "Build finished. Cleaning up the temporary port bind"
-  cat tmp/pid | xargs kill -9
-  rm -r tmp/
-
   if [ "$1" = "web" ]; then
+    echo "Build finished. Cleaning up the temporary port bind"
+    cat tmp/pid | xargs kill -9
+    rm -r tmp/
+
     echo "Starting the PredictionIO Service"
     if [ "$PORT" = "" ]; then
       $PIO_HOME/bin/pio deploy
