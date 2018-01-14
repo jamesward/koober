@@ -34,7 +34,7 @@ object FlinkClient extends App {
   val onlyRoutesStream = stream.flatMap(_.\("route").toOption).keyBy(_ => "") // todo: should partition by broad location
 
   val routeTotalsStream = onlyRoutesStream.fold(RouteTotals()) { case (routeTotals, jsValue) =>
-    val seconds = (jsValue \ "duration").as[Int]
+    val seconds = (jsValue \ "duration").as[Float].toInt
     routeTotals.copy(routeTotals.num + 1, routeTotals.seconds + seconds)
   }
 

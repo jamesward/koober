@@ -23,7 +23,7 @@ Try it out:
 Start Flink:
 
 1. `./sbt flinkClient/run`
-1. Initiate a few picks and see the average pickup wait time change
+1. Initiate a few pickups and see the average pickup wait time change (in the stdout console for the Flink process)
 
 Start Cassandra:
 
